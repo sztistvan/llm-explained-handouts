@@ -131,7 +131,7 @@ print(cosine(emb["king"], emb["apple"]))  # ~-0.44 -> unrelated
 1. **The input embedding is context-free.** The token `bank` starts with the same vector in "river bank" and "bank loan". The **Transformer layers** then update each token's vector using its neighbors, so by the later layers `bank` carries a context-specific meaning. This is the main job of attention (handout 03).
 2. **Two different things are called "embeddings":**
    - the *input embedding table* inside an LLM (first step above);
-   - **embedding models** (e.g., sentence embedders) that turn a whole text into one vector for search and RAG (handout 08). Same idea, different purpose.
+   - **embedding models** (e.g., sentence embedders) that turn a whole text into one vector for search and RAG (retrieval-augmented generation, handout 08). Same idea, different purpose.
 
 ---
 
@@ -145,8 +145,8 @@ Attention (handout 03) compares tokens with each other, but by itself it has **n
 |---|---|---|
 | Sinusoidal (original Transformer) | Add a fixed wave pattern per position to the embedding | original 2017 model |
 | Learned absolute | A learned vector per position, added to the embedding | GPT-2, BERT |
-| **RoPE** (rotary) | *Rotate* query/key vectors by an angle proportional to position, so attention depends on *relative* distance | LLaMA family, many modern models |
-| ALiBi | Add a distance penalty directly to attention scores | some models (e.g., BLOOM) |
+| **RoPE** (rotary position embedding) | *Rotate* query/key vectors by an angle proportional to position, so attention depends on *relative* distance | LLaMA family, many modern models |
+| ALiBi (Attention with Linear Biases) | Add a distance penalty directly to attention scores | some models (e.g., BLOOM) |
 
 Why it matters beyond theory: the positional scheme strongly affects how well a model handles **long contexts** and whether context can be extended after training (handout 07).
 
@@ -172,6 +172,6 @@ PE(pos, 2i+1) = cos(pos / 10000^(2i/d_model))
 - Everything downstream (cost, limits, quirks) is measured in tokens, not words.
 
 ## Further reading
-- Sennrich et al., *Neural Machine Translation of Rare Words with Subword Units* (BPE for NLP, 2015)
+- Sennrich et al., *Neural Machine Translation of Rare Words with Subword Units* (BPE for natural language processing, 2015)
 - Karpathy, *Let's build the GPT Tokenizer* (video) and `minbpe` repo
 - Su et al., *RoFormer: Enhanced Transformer with Rotary Position Embedding* (RoPE, 2021)

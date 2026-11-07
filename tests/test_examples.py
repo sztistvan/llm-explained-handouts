@@ -10,8 +10,38 @@ import attention
 import bigram
 import embeddings_demo
 import numpy as np
+import lora
 import sampling
 import toy_bpe
+import train_bigram
+
+
+def test_training_reduces_loss_and_learns_counts():
+    words = "the cat sat on the mat the cat ate the fish".split()
+    vocab, ids = train_bigram.encode(words)
+    W, losses = train_bigram.train(ids, len(vocab), steps=500)
+    assert losses[-1] < losses[0] * 0.5
+    assert all(a >= b - 1e-9 for a, b in zip(losses, losses[1:]))   # full-batch GD on convex loss
+    probs = train_bigram.softmax_rows(W[[vocab.index("the")]])[0]
+    # "the" is followed by cat (2x), mat, fish -> learned ~ counts 0.5 / 0.25 / 0.25 (+ ate unseen)
+    assert probs[vocab.index("cat")] == pytest.approx(0.5, abs=0.05)
+    assert probs[vocab.index("mat")] == pytest.approx(0.25, abs=0.05)
+
+
+def test_lora_starts_identical_to_base_and_merges_exactly():
+    rng = np.random.default_rng(0)
+    layer = lora.LoRALinear(rng.normal(size=(32, 16)), r=4, alpha=8, rng=rng)
+    x = rng.normal(size=(5, 16))
+    assert np.allclose(layer.forward(x), x @ layer.W0.T)            # B = 0 => no change at start
+    layer.B = rng.normal(size=layer.B.shape)                        # pretend training happened
+    assert np.allclose(layer.forward(x), x @ layer.merged_weight().T)
+
+
+def test_lora_trainable_params_far_fewer():
+    rng = np.random.default_rng(0)
+    layer = lora.LoRALinear(rng.normal(size=(1024, 1024)), r=8, alpha=16, rng=rng)
+    assert layer.trainable_params() == 8 * 1024 * 2
+    assert layer.trainable_params() < 0.02 * layer.W0.size
 
 
 LOGITS = np.array([3.0, 2.0, 0.5, -1.0])

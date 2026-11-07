@@ -1,7 +1,7 @@
 # 03 · The Transformer and the Model Taxonomy
 
 ## Key idea
-A Transformer is a stack of identical blocks. In each block, **attention** lets every token gather information from other tokens, and an **MLP** processes each token's vector on its own. Stack dozens of blocks and the vectors turn from "what this token is" into "what should come next".
+A Transformer is a stack of identical blocks. In each block, **attention** lets every token gather information from other tokens, and an **MLP** (multi-layer perceptron, a feed-forward network) processes each token's vector on its own. Stack dozens of blocks and the vectors turn from "what this token is" into "what should come next".
 
 Depending on how the blocks are wired and masked, you get three families: **encoder-only**, **decoder-only** and **encoder-decoder**. Nearly all modern chat LLMs are decoder-only.
 
@@ -42,7 +42,7 @@ flowchart TB
 | **Attention** | Mix information *between* tokens | A meeting where each token asks questions and listens to the relevant others |
 | **MLP** | Transform each token's vector *independently* (expand to ~4x width, nonlinearity, shrink back). Much of the model's stored "knowledge" is believed to live here | Each token thinking on its own after the meeting |
 | **Residual connection** (`+`) | Add the block's output to its input instead of replacing it | A shared notebook that each block annotates; also keeps training stable in deep stacks |
-| **Normalization** (LayerNorm / RMSNorm) | Rescale vectors so numbers stay in a healthy range | Keeping volume levels sane between stages |
+| **Normalization** (LayerNorm / RMSNorm, root-mean-square norm) | Rescale vectors so numbers stay in a healthy range | Keeping volume levels sane between stages |
 
 ---
 
@@ -159,7 +159,7 @@ The score table is `n × n`, so attention compute and memory grow **quadraticall
 
 ---
 
-## Part 3: Generation, the KV cache, and parameters
+## Part 3: Generation, the KV (key-value) cache, and parameters
 
 ### The KV cache
 When generating token by token, the keys and values of *earlier* tokens never change (thanks to the causal mask). So the server **caches** each layer's K and V for all previous tokens and, for each new token, computes Q/K/V only for that one token.
@@ -211,7 +211,7 @@ flowchart LR
 |---|---|---|---|
 | Attention | Bidirectional (sees left and right) | Causal (left only) | Encoder bidirectional; decoder causal + **cross-attention** to encoder |
 | Pretraining objective | Masked language modeling (fill in blanks) | Next-token prediction | Span corruption or denoising, text-to-text |
-| Strength | Understanding: classification, search, NER, embeddings | Open-ended generation, chat, code, in-context learning | Input→output transformation: translation, summarization, speech-to-text |
+| Strength | Understanding: classification, search, NER (named-entity recognition), embeddings | Open-ended generation, chat, code, in-context learning | Input→output transformation: translation, summarization, speech-to-text |
 | Generates text? | Not naturally | Yes | Yes |
 | Typical use today | Embeddings and rerankers, classifiers | Chat assistants, coding, agents | Translation, speech (Whisper), some seq2seq tasks |
 
@@ -225,6 +225,8 @@ Encoder-only and encoder-decoder models remain valuable where they are cheaper o
 
 ### Popular models by type
 *As of November 2026. Verify before citing: this list ages quickly.*
+
+Name expansions: **GPT** = Generative Pre-trained Transformer, **BERT** = Bidirectional Encoder Representations from Transformers, **T5** = Text-to-Text Transfer Transformer, **ViT** = Vision Transformer, **CLIP** = Contrastive Language-Image Pre-training.
 
 | Family | Models (examples) | Notes |
 |---|---|---|

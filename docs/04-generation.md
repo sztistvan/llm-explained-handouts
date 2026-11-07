@@ -180,7 +180,7 @@ Adjust **one** of temperature or top-p at a time. Their effects overlap, and cha
 - **"Higher temperature = smarter or more creative."** It just flattens the distribution. Beyond a point you get incoherence.
 - **Prompt-only JSON.** Parsing failures will happen in production. Use constrained or structured output features, plus validation and retry.
 - **Cut-off outputs.** Always check the finish reason (`length` vs `stop`) before trusting an answer.
-- **Tuning sampling to fix hallucinations.** Decoding settings change variety, not knowledge. Fix facts with better context (RAG, handout 08) and verification.
+- **Tuning sampling to fix hallucinations.** Decoding settings change variety, not knowledge. Fix facts with better context (retrieval-augmented generation, RAG; handout 08) and verification.
 
 ## Summary
 - The network outputs logits. Decoding turns them into the next token, and the loop repeats.

@@ -33,7 +33,7 @@ Predict the next word from the previous *n-1* words using counted frequencies (t
 Bengio et al. (2003) predicted the next word with a neural network over *learned vectors* for words. word2vec (2013) made embeddings popular: similar words get nearby vectors. This solved the similarity problem and generalized to unseen phrases.
 
 ### 3. Recurrent networks (RNN, LSTM, GRU)
-Read the sequence one token at a time, carrying a **hidden state** (a fixed-size memory).
+**RNNs** (recurrent neural networks) and their gated variants **LSTM** (long short-term memory) and **GRU** (gated recurrent unit) read the sequence one token at a time, carrying a **hidden state** (a fixed-size memory).
 
 ```mermaid
 flowchart LR
@@ -62,9 +62,9 @@ Parallelism is the practical reason this architecture won: it let people train m
 
 ### 6. Pretrain once, adapt many times (2018-2019)
 Instead of training a model per task, **pretrain** a big model on raw text, then adapt it.
-- **GPT-1/2** (decoder-only): predict the next token. GPT-2 showed text generation and zero-shot ability emerging with scale.
-- **BERT** (encoder-only): fill in masked words. Excellent for understanding tasks (classification, search) rather than generation.
-- **T5** (encoder-decoder): cast every task as text-to-text.
+- **GPT-1/2** (Generative Pre-trained Transformer; decoder-only): predict the next token. GPT-2 showed text generation and zero-shot ability emerging with scale.
+- **BERT** (Bidirectional Encoder Representations from Transformers; encoder-only): fill in masked words. Excellent for understanding tasks (classification, search) rather than generation.
+- **T5** (Text-to-Text Transfer Transformer; encoder-decoder): cast every task as text-to-text.
 
 These three branches are the architecture families classified in handout 03.
 
@@ -78,7 +78,7 @@ A base model continues text. It does not follow instructions. **Instruction tuni
 
 ### 9. Open models, efficiency, reasoning (2023-)
 - **Open-weight models:** LLaMA (2023) and successors, Mistral, and others made capable models runnable locally and fine-tunable by anyone.
-- **Efficiency:** **Mixture of Experts** (e.g., Mixtral) activates only part of the network per token; quantization and better serving shrink cost (handouts 06, 07).
+- **Efficiency:** **Mixture of Experts** (MoE, e.g., Mixtral) activates only part of the network per token; quantization and better serving shrink cost (handouts 06, 07).
 - **Reasoning models (2024-):** models trained (often with reinforcement learning) to produce long intermediate "thinking" before answering, trading more inference compute for better results on hard problems (e.g., OpenAI o1, DeepSeek-R1).
 - **Multimodal and long context:** images, audio and much larger context windows became routine.
 
@@ -97,7 +97,7 @@ A base model continues text. It does not follow instructions. **Instruction tuni
 - "Attention is new in 2017." It appeared in 2014 as an add-on to RNNs; 2017 made it the whole architecture.
 
 ## Summary
-- n-grams → neural LMs → RNN/LSTM → attention → Transformer → scaled pretraining → aligned assistants → efficient, open and reasoning models.
+- n-grams → neural language models → RNN/LSTM → attention → Transformer → scaled pretraining → aligned assistants → efficient, open and reasoning models.
 - The Transformer's parallelism enabled scale. Scale and alignment produced today's LLMs.
 
 ## Further reading

@@ -41,6 +41,8 @@ Every handout uses the same sections: **Key idea → Intuition → How it works 
 - **Code:** short, runnable, standalone files under `examples/python/` and `examples/js/`, referenced from the handouts.
 - **Accuracy rule:** simplify the explanation, never the facts. Flag simplifications explicitly. Mark fast-changing facts (model names, sizes, dates) as "as of <date>".
 
+- **Glossary:** [glossary.md](glossary.md) indexes terms and abbreviations with pointers to the handouts. It is updated with every new handout. Define each abbreviation in full at its first use in running text of a handout (diagram labels excepted). Exempt: universal developer terms (API, JSON, GPU), benchmark and model names (except where the name expansion is useful, as in handouts 01 and 03), and LLM after handout 00.
+
 ## Layout
 ```
 llm-explained-handouts/
@@ -58,4 +60,5 @@ llm-explained-handouts/
 - [x] 02 Text to numbers (draft)
 - [x] 03 Transformer and model taxonomy (draft)
 - [x] 04 Generation and sampling (draft)
-- [ ] 05–10
+- [x] 05 Training (draft)
+- [ ] 06–10

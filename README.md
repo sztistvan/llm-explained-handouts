@@ -2,6 +2,8 @@
 
 Short, accurate, intuition-first handouts on how Large Language Models work, written for software developers. See [SCOPE.md](SCOPE.md) for goals and conventions.
 
+**Unknown term or abbreviation?** See the [Glossary and Index](glossary.md).
+
 ## Reading paths
 - **Fast track (the mental model):** 00 → 03 → 04 → 08 → 09
 - **Full track:** 00 → 10 in order
@@ -15,7 +17,7 @@ Short, accurate, intuition-first handouts on how Large Language Models work, wri
 | 02 | [Text to numbers: tokens and embeddings](docs/02-text-to-numbers.md) | draft |
 | 03 | [The Transformer and model taxonomy](docs/03-transformer.md) | draft |
 | 04 | [Generation and sampling](docs/04-generation.md) | draft |
-| 05 | Training | planned |
+| 05 | [Training](docs/05-training.md) | draft |
 | 06 | Inference and serving | planned |
 | 07 | Architecture variants | planned |
 | 08 | Building with LLMs | planned |

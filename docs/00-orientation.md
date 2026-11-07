@@ -1,7 +1,7 @@
 # 00 · Orientation: The Mental Model
 
 ## Key idea
-An LLM is a function that takes a sequence of **tokens** and returns a **probability distribution over the next token**. Everything else (chat, code generation, tool use) is built by calling that function in a loop.
+A **Large Language Model (LLM)** is a function that takes a sequence of **tokens** and returns a **probability distribution over the next token**. Everything else (chat, code generation, tool use) is built by calling that function in a loop.
 
 ## Intuition
 Think of autocomplete on a vast scale. Your phone predicts the next word from the last few words. An LLM predicts the next token from thousands (now often hundreds of thousands) of previous tokens, using billions of learned numbers (**parameters**, or weights) that were tuned by reading a huge amount of text.
@@ -14,7 +14,7 @@ To predict text well, the model had to pick up grammar, facts, coding patterns a
 flowchart LR
     A["Text<br/>'The cat sat'"] --> B["Tokenizer<br/>[464, 3797, 3332]"]
     B --> C["Embeddings<br/>vectors of numbers"]
-    C --> D["Transformer layers<br/>(x N, attention + MLP)"]
+    C --> D["Transformer layers<br/>(x N, attention + feed-forward)"]
     D --> E["Logits<br/>one score per vocab token"]
     E --> F["Softmax + sampling<br/>pick next token"]
     F --> G["Token: ' on'"]
@@ -25,7 +25,7 @@ flowchart LR
 |---|---|---|
 | Tokenizer | Text is split into sub-word pieces mapped to integer IDs | 02 |
 | Embeddings | Each ID becomes a vector that encodes meaning | 02 |
-| Transformer layers | Tokens exchange information (attention) and are transformed (MLP) | 03 |
+| Transformer layers | Tokens exchange information (attention) and are transformed by a feed-forward network (**MLP**, multi-layer perceptron) | 03 |
 | Logits → probabilities | A score for every token in the vocabulary becomes a probability | 04 |
 | Sampling | One token is chosen, appended to the input, and the loop repeats | 04 |
 
@@ -35,7 +35,7 @@ flowchart TB
     subgraph Training["Training (once, very expensive)"]
       T1["Huge text corpus"] --> T2["Predict next token<br/>adjust weights"]
       T2 --> T3["Base model"]
-      T3 --> T4["Fine-tuning, RLHF<br/>(instruction following, safety)"]
+      T3 --> T4["Fine-tuning, RLHF<br/>(reinforcement learning from human feedback:<br/>instruction following, safety)"]
       T4 --> T5["Chat/assistant model"]
     end
     subgraph Inference["Inference (every request, cheap per call)"]
