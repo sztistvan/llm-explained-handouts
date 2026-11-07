@@ -22,7 +22,7 @@ Short, accurate, intuition-first handouts on how Large Language Models work, wri
 | 07 | [Architecture variants](docs/07-architecture-variants.md) | draft |
 | 08 | [Building with LLMs](docs/08-building-with-llms.md) | draft |
 | 09 | [Pitfalls and best practices](docs/09-pitfalls-and-practices.md) | draft |
-| 10 | Further reading | planned |
+| 10 | [Further reading](docs/10-further-reading.md) | draft |
 
 ## Running the code examples
 Requires Python 3.10+ (developed on 3.13).
