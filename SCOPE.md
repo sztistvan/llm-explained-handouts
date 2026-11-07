@@ -56,4 +56,5 @@ llm-explained-handouts/
 - [x] Scope agreed
 - [x] 00 Orientation, 01 History (style sample, review before continuing)
 - [x] 02 Text to numbers (draft)
-- [ ] 03–10
+- [x] 03 Transformer and model taxonomy (draft)
+- [ ] 04–10
