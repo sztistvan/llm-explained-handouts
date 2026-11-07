@@ -1,6 +1,6 @@
 # Glossary and Index
 
-Terms and abbreviations used in the handouts, with a pointer to where each is explained. Handout numbers: [00](docs/00-orientation.md) Orientation · [01](docs/01-history.md) History · [02](docs/02-text-to-numbers.md) Tokens and embeddings · [03](docs/03-transformer.md) Transformer · [04](docs/04-generation.md) Generation · [05](docs/05-training.md) Training · [06](docs/06-inference.md) Inference and serving · [07](docs/07-architecture-variants.md) Architecture variants · [08](docs/08-building-with-llms.md) Building with LLMs.
+Terms and abbreviations used in the handouts, with a pointer to where each is explained. Handout numbers: [00](docs/00-orientation.md) Orientation · [01](docs/01-history.md) History · [02](docs/02-text-to-numbers.md) Tokens and embeddings · [03](docs/03-transformer.md) Transformer · [04](docs/04-generation.md) Generation · [05](docs/05-training.md) Training · [06](docs/06-inference.md) Inference and serving · [07](docs/07-architecture-variants.md) Architecture variants · [08](docs/08-building-with-llms.md) Building with LLMs · [09](docs/09-pitfalls-and-practices.md) Pitfalls and best practices.
 
 Entries marked *(planned)* will be covered in a later handout. This file is updated with every new handout.
 
@@ -71,6 +71,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 - **Alignment:** shaping a model's behavior toward helpful, honest, safe responses (post-training). 05
 - **Attention:** mechanism where each token takes a weighted average of other tokens' value vectors, with weights from query-key matches. 01, 03
 - **Agent:** an LLM running a tool-use loop and choosing its own next steps; contrast with a *workflow*. 08
+- **Automation bias:** over-trusting fluent machine output. 09
 - **Active parameters:** the parameters actually used for one token in an MoE model (a fraction of the total). 07
 - **Attention sink:** the first few tokens kept permanently in a streaming setup alongside a recent window. 07
 - **Attention weights:** the softmax output of the score table; each row sums to 1. 03
@@ -106,6 +107,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 - **DPO:** preference tuning with a direct loss on (chosen, rejected) pairs, no reward model. 05
 
 ## E
+- **Eval (evaluation set):** fixed test inputs with automatic checks, run repeatedly to measure an LLM feature statistically. 09
 - **Embedding:** a learned vector representing a token (or a whole text, for embedding models). 02
 - **Expert:** one of several parallel MLPs in an MoE layer; the router picks a few per token. 07
 - **Embedding model:** model that maps a whole text to one vector, used for search and RAG. 02
@@ -129,13 +131,15 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 - **GQA (grouped-query attention):** several query heads share one set of keys/values, shrinking the KV cache. 03
 
 ## H
-- **Hallucination:** fluent but false or unsupported output; a result of optimizing for plausible text. 00, 09 *(planned)*
+- **Hallucination:** fluent but false or unsupported output; a result of optimizing for plausible text. Mitigate by grounding, verification and an "I don't know" path. 00, 09
 - **Head (attention head):** one independent attention computation on a slice of the vector. 03
 - **Hybrid search:** combining vector (semantic) search with keyword search. 08
 - **Hybrid model:** architecture interleaving attention layers with SSM (and sometimes MoE) layers. 07
+- **Guardrails:** checks and limits around the model (input/output validation, moderation, tool permissions). 09
 - **Hidden state:** a token's vector inside the network after at least one block (size `d_model`). 03
 
 ## I
+- **Indirect prompt injection:** malicious instructions hidden in content the model processes (web page, email, document, tool result). 09
 - **In-context learning:** adapting to a task from examples in the prompt, with no weight update. 01
 - **Inference:** running a trained model to produce output; weights do not change. 00
 - **Instruction tuning:** supervised fine-tuning on (instruction, response) pairs. 01, 05
@@ -147,6 +151,9 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 
 ## L
 - **Layer normalization / RMSNorm:** rescaling vectors to keep numbers in a stable range. 03
+- **Least privilege:** giving a task only the tools and credentials it needs. 08, 09
+- **"Lethal trifecta":** private data + untrusted content + external communication in one agent: a data-leak risk. 09
+- **LLM-as-judge:** using a model to grade other model outputs; biased, so calibrate with humans. 05, 09
 - **Learning rate:** step size of the weight updates; usually warmed up then decayed. 05
 - **Logits:** raw, unnormalized scores, one per vocabulary token. 04
 - **Logprobs:** log-probabilities of tokens, returned by some APIs. 04
@@ -177,6 +184,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 - **Parameters (weights):** the learned numbers of the model. 00
 - **Perplexity:** `exp(loss)`; roughly how many tokens the model is torn between. 05
 - **Positional encoding:** information telling the model each token's position (sinusoidal, learned, RoPE, ALiBi). 02
+- **Prompt injection:** text in the data acting as instructions to the model; defend with permissions, not wording. 09
 - **Position interpolation:** scaling positions down so a longer text fits the trained range (RoPE context extension); NTK-aware scaling and YaRN are related methods. 07
 - **PPO:** reinforcement-learning algorithm used in classic RLHF. 05
 - **Prefill:** processing the whole prompt in parallel before generating. 03
@@ -195,6 +203,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 - **Reranking:** reordering or filtering retrieved passages with a stronger model before prompting. 08
 - **Reasoning model:** model trained (often with RL) to produce long intermediate reasoning before answering. 01, 05
 - **Router (gating network):** small layer in an MoE block that scores experts for each token. 07
+- **Regression gate:** a CI check that fails when eval scores drop below a baseline. 09
 - **Residual connection:** adding a layer's output to its input. 03
 - **Reward model:** model trained on human comparisons to score answers. 05
 - **RLHF / RLAIF / RLVR:** reinforcement learning with human feedback / AI feedback / automatically verifiable rewards. 05
@@ -232,5 +241,6 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 - **Vision encoder / projector:** the encoder that turns image patches into vectors / the small network mapping them to the LLM's `d_model`. 07
 - **Vocabulary:** the set of all tokens a model knows (about 30k to 250k+). 02
 - **Workflow:** a fixed sequence of steps in your code, some of which call an LLM; contrast with an *agent*. 08
+- **Retry with exponential backoff:** retrying failed calls after growing delays (plus jitter). 09
 - **Weight decay:** a small penalty on large weights, part of AdamW. 05
 - **ZeRO / FSDP:** techniques that shard optimizer state, gradients and weights across GPUs. 05

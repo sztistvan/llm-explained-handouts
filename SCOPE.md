@@ -64,4 +64,5 @@ llm-explained-handouts/
 - [x] 06 Inference and serving (draft)
 - [x] 07 Architecture variants (draft)
 - [x] 08 Building with LLMs (draft)
-- [ ] 09–10
+- [x] 09 Pitfalls and best practices (draft)
+- [ ] 10
