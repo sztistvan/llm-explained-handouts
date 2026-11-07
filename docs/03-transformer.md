@@ -55,7 +55,15 @@ Each token produces three vectors from its current vector (by multiplying with l
 - **Key (K):** "what do I contain / advertise?"
 - **Value (V):** "what information do I hand over if you pick me?"
 
-A token compares its query to every key. The better the match, the more of that token's value it takes in. The result is a **weighted average of value vectors**.
+**What is trained and what is computed:** the three matrices `W_Q`, `W_K`, `W_V` are learned weights. They are fixed after training and are the same for every token (each layer and head has its own set). The vectors **Q, K, V are not stored**. They are computed on the fly for the current text by multiplying each token's vector `x` with those matrices:
+
+```text
+q_i = x_i @ W_Q      k_i = x_i @ W_K      v_i = x_i @ W_V      (for every token i)
+```
+
+Training teaches the matrices to produce queries and keys that match when tokens are relevant to each other.
+
+**What "compares its query to every key" means:** take the token that is currently "looking", say `it`. Its query vector `q_it` is compared (by dot product) with the key vector `k_j` of **every token j in the visible context**, including itself. That gives one score per token: a high score means "token j is relevant to me". Softmax turns the scores into weights that sum to 1. The token then takes a **weighted average of the value vectors** `v_j`, so relevant tokens contribute more. This happens for every token at the same time (that is the `n × n` score table below: row = the looking token, column = the token it looks at).
 
 Example: in *"The animal didn't cross the street because it was tired"*, the token `it` should attend strongly to `animal`. Attention is how the model can make that link, whatever the distance.
 
@@ -63,17 +71,34 @@ Example: in *"The animal didn't cross the street because it was tired"*, the tok
 ```text
 Attention(Q, K, V) = softmax( Q · Kᵀ / √d_k ) · V
 ```
+**Notation** (from the original paper, now standard). `d` stands for *dimension*, the length of a vector. The subscript says which vector, and `n` and `h` are counts:
+
+| Symbol | Meaning | Example (original paper's base model) |
+|---|---|---|
+| `n` | number of tokens in the sequence | varies |
+| `d_model` | length of the token vectors flowing through the whole model. This **is the embedding size** (also called *hidden size* or *model dimension*) | 512 |
+| `h` | number of attention heads | 8 |
+| `d_k` | length of the query and key vectors (must match, because `q · k` needs equal lengths) | 64 |
+| `d_v` | length of the value vectors (can differ from `d_k`, usually equal) | 64 |
+| `d_ff` | width of the MLP's hidden layer | 2048 |
+
+With multi-head attention, `d_model` is split across the heads, so `d_k = d_v = d_model / h` (here 512 / 8 = 64). That is why the formula divides by `√d_k`, the square root of the **per-head** size, not of the full model width. In `attention.py` the same quantity is called `d_head`.
+
+How the sizes relate to the embedding size: `d_model` is the length of the vector produced by the embedding lookup (handout 02), and every block takes and returns vectors of that same length. `d_k` and `d_v` are derived from it (`d_model / h`). `d_ff` is usually about `4 × d_model`: the MLP expands the vector to `d_ff` and shrinks it back to `d_model`. After the first block these vectors are no longer "just the token's embedding", since attention and MLP layers have enriched them, so they are better called **hidden states**. The size stays `d_model`.
+
+**Vectors or matrices?** Both views are the same thing. Each token has its own `q`, `k` and `v` **vector** (length `d_k`). In the formula and diagram, **Q, K, V are matrices**: the vectors of all `n` tokens stacked as rows, shape `n × d_k`. Stacking lets one matrix multiplication compare every token with every other token at once. The learned weights `W_Q`, `W_K`, `W_V` are also matrices (`d_model × d_k`).
+
 Step by step:
 
 ```mermaid
 flowchart LR
-    Q["Q"] --> S["scores = Q · Kᵀ<br/>(n × n)"]
-    K["K"] --> S
+    Q["Q (n × d_k)"] --> S["scores = Q · Kᵀ<br/>(n × n)"]
+    K["K (n × d_k)"] --> S
     S --> SC["divide by √d_k"]
     SC --> M["causal mask<br/>(decoders only)"]
     M --> SM["softmax per row<br/>(weights sum to 1)"]
     SM --> O["weights · V<br/>= output"]
-    V["V"] --> O
+    V["V (n × d_k)"] --> O
 ```
 
 1. **`Q · Kᵀ`**: dot product of every query with every key gives an `n × n` table of match scores.
@@ -83,6 +108,7 @@ flowchart LR
 5. **`· V`**: use the weights to average the value vectors.
 
 ### The causal mask
+In a decoder, the "every token j in the visible context" above is restricted by the mask: token *i* may only compare its query with the keys of tokens at positions ≤ *i* (itself and earlier ones). The scores for later positions are blocked before softmax, so they get weight 0 and contribute nothing.
 ```text
         sees→  The  cat  sat  down
 The            [ ✓    ✗    ✗    ✗ ]
