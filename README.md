@@ -18,7 +18,7 @@ Short, accurate, intuition-first handouts on how Large Language Models work, wri
 | 03 | [The Transformer and model taxonomy](docs/03-transformer.md) | draft |
 | 04 | [Generation and sampling](docs/04-generation.md) | draft |
 | 05 | [Training](docs/05-training.md) | draft |
-| 06 | Inference and serving | planned |
+| 06 | [Inference and serving](docs/06-inference.md) | draft |
 | 07 | Architecture variants | planned |
 | 08 | Building with LLMs | planned |
 | 09 | Pitfalls and best practices | planned |

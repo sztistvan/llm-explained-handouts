@@ -61,4 +61,5 @@ llm-explained-handouts/
 - [x] 03 Transformer and model taxonomy (draft)
 - [x] 04 Generation and sampling (draft)
 - [x] 05 Training (draft)
-- [ ] 06–10
+- [x] 06 Inference and serving (draft)
+- [ ] 07–10

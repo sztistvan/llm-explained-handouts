@@ -1,6 +1,6 @@
 # Glossary and Index
 
-Terms and abbreviations used in the handouts, with a pointer to where each is explained. Handout numbers: [00](docs/00-orientation.md) Orientation · [01](docs/01-history.md) History · [02](docs/02-text-to-numbers.md) Tokens and embeddings · [03](docs/03-transformer.md) Transformer · [04](docs/04-generation.md) Generation · [05](docs/05-training.md) Training.
+Terms and abbreviations used in the handouts, with a pointer to where each is explained. Handout numbers: [00](docs/00-orientation.md) Orientation · [01](docs/01-history.md) History · [02](docs/02-text-to-numbers.md) Tokens and embeddings · [03](docs/03-transformer.md) Transformer · [04](docs/04-generation.md) Generation · [05](docs/05-training.md) Training · [06](docs/06-inference.md) Inference and serving.
 
 Entries marked *(planned)* will be covered in a later handout. This file is updated with every new handout.
 
@@ -8,14 +8,18 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 | Abbr. | Stands for | See |
 |---|---|---|
 | ALiBi | Attention with Linear Biases (positional method) | 02 |
+| AWQ | Activation-aware Weight Quantization | 06 |
 | BERT | Bidirectional Encoder Representations from Transformers | 01, 03 |
 | bf16 | bfloat16, a 16-bit number format common in training | 05 |
 | BPE | Byte-Pair Encoding (tokenizer algorithm) | 02 |
 | DPO | Direct Preference Optimization | 05 |
 | FLOPs | Floating-point operations (amount of compute) | 05 |
+| FP8 | 8-bit floating point | 06 |
 | FSDP | Fully Sharded Data Parallel | 05 |
 | GELU | Gaussian Error Linear Unit (activation function) | 03 |
+| GGUF | file format for quantized models used by llama.cpp | 06 |
 | GPT | Generative Pre-trained Transformer | 01, 03 |
+| GPTQ | post-training weight quantization method | 06 |
 | GQA | Grouped-Query Attention | 03 |
 | KV cache | Key-Value cache | 03 |
 | LLM | Large Language Model | 00 |
@@ -37,6 +41,8 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 | RoPE | Rotary Position Embedding | 02 |
 | SFT | Supervised Fine-Tuning | 05 |
 | T5 | Text-to-Text Transfer Transformer | 01, 03 |
+| TPOT | Time Per Output Token | 06 |
+| TTFT | Time To First Token | 06 |
 | ViT | Vision Transformer | 03 |
 | ZeRO | Zero Redundancy Optimizer | 05 |
 
@@ -66,6 +72,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 - **Backpropagation:** algorithm that computes how each weight should change to reduce the loss. 05
 - **Base model:** a pretrained model that only continues text; not yet an assistant. 05
 - **Batch size:** number of sequences (or tokens) processed per training step. 05
+- **Batching (static / continuous):** serving many requests per model pass. Static waits for the whole batch; continuous swaps finished requests for waiting ones after every step. 06
 - **Beam search:** decoding that keeps the best *k* partial sequences instead of one. 04
 - **Benchmark:** a standard test set with automatic scoring (MMLU, HumanEval, ...). 05
 - **BPE (Byte-Pair Encoding):** builds a sub-word vocabulary by repeatedly merging the most frequent adjacent pair. 02
@@ -73,6 +80,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 ## C
 - **Causal mask:** blocks attention to later positions so token *i* only sees tokens ≤ *i*. 03
 - **Chinchilla:** 2022 result: scale parameters and training tokens together (about 20 tokens per parameter). 01, 05
+- **Compute-bound / memory-bandwidth-bound:** limited by arithmetic speed (prefill) / by how fast data can be read from memory (decode). 06
 - **Constitutional AI:** a method where a model uses written principles to critique and generate preference labels. 05
 - **Constrained decoding:** masking illegal tokens at each step to guarantee a grammar or JSON schema. 04
 - **Context window:** the maximum number of tokens the model can read at once; its only working memory. 00, 03
@@ -85,6 +93,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 - **Decode (phase):** generating tokens one at a time after the prompt; memory-bandwidth-bound. 03
 - **Decoder-only:** Transformer using only causal attention; the dominant LLM family. 03
 - **Decoding:** turning logits into the chosen next token (greedy, sampling, beam search...). 04
+- **Draft model:** small, fast model that proposes tokens for the large target model to verify (speculative decoding). 06
 - **DPO:** preference tuning with a direct loss on (chosen, rejected) pairs, no reward model. 05
 
 ## E
@@ -97,6 +106,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 
 ## F
 - **Fine-tuning:** further training of a pretrained model on a narrower dataset. 05
+- **FlashAttention:** exact attention computed in on-chip tiles, avoiding the full `n × n` table in slow memory. 06
 - **FLOPs:** count of arithmetic operations; training ≈ `6·N·D`. 05
 
 ## G
@@ -132,6 +142,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 ## M
 - **Masked language modeling:** pretraining objective for encoders: fill in hidden words. 03
 - **Min-p:** sampling filter keeping tokens above a fraction of the top token's probability. 04
+- **Memory-bandwidth-bound:** see *compute-bound*. 06
 - **Mixed precision:** computing in 16-bit while keeping some values in 32-bit. 05
 - **MLP (feed-forward):** per-token expand-activate-shrink network in each block. 03
 - **MoE (Mixture of Experts):** only a few specialist sub-networks run per token. 01, 03, 07 *(planned)*
@@ -146,17 +157,19 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 - **Over-training:** training a model on far more tokens than compute-optimal, to make a small model strong and cheap to serve. 05
 
 ## P
+- **PagedAttention:** storing the KV cache in small fixed-size blocks to avoid fragmentation and fit more requests (vLLM). 06
 - **Parameters (weights):** the learned numbers of the model. 00
 - **Perplexity:** `exp(loss)`; roughly how many tokens the model is torn between. 05
 - **Positional encoding:** information telling the model each token's position (sinusoidal, learned, RoPE, ALiBi). 02
 - **PPO:** reinforcement-learning algorithm used in classic RLHF. 05
 - **Prefill:** processing the whole prompt in parallel before generating. 03
 - **Pretraining:** the large self-supervised first stage on raw text. 05
-- **Prompt caching:** reusing the KV cache of an unchanged prompt prefix to save cost and latency. 03
+- **Prefix caching:** reusing the KV cache for a shared prompt prefix across requests; sold by providers as prompt caching. 06
+- **Prompt caching:** reusing the KV cache of an unchanged prompt prefix to save cost and latency. 03, 06
 
 ## Q
 - **QLoRA:** LoRA on top of a base model stored in 4-bit precision. 05
-- **Quantization:** storing weights in fewer bits to save memory and time. 05, 06 *(planned)*
+- **Quantization:** storing weights in fewer bits (e.g., int8, int4) plus scale factors, to save memory and speed up decoding. Per-group scales reduce error. 05, 06
 - **Query (Q):** vector a token uses to search for relevant tokens. 03
 
 ## R
@@ -177,6 +190,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 - **SFT:** supervised fine-tuning. 05
 - **Softmax:** turns scores into positive probabilities summing to 1. 03, 04
 - **Special tokens:** vocabulary entries marking structure (end of text, roles, tool calls). 02
+- **Speculative decoding:** a draft model proposes several tokens and the target verifies them in one pass; output distribution is unchanged. 06
 - **Stop sequence:** a string that ends generation when produced. 04
 - **Sycophancy:** tendency to agree with the user, partly an artifact of preference tuning. 05
 
@@ -184,6 +198,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 - **Teacher forcing:** training with the true previous tokens as input, so every position yields a loss in one pass. 05
 - **Temperature:** divides logits before softmax; low = focused, high = random. 04
 - **Token / tokenizer:** a sub-word piece with an integer ID / the component that splits text into them. 02
+- **Throughput:** total tokens per second across all users of a server. 06
 - **Top-k / top-p:** sampling filters keeping the *k* best tokens / the smallest set with cumulative probability ≥ *p*. 04
 - **Transformer:** architecture built from attention and MLP blocks (2017). 01, 03
 
