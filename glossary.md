@@ -1,6 +1,6 @@
 # Glossary and Index
 
-Terms and abbreviations used in the handouts, with a pointer to where each is explained. Handout numbers: [00](docs/00-orientation.md) Orientation · [01](docs/01-history.md) History · [02](docs/02-text-to-numbers.md) Tokens and embeddings · [03](docs/03-transformer.md) Transformer · [04](docs/04-generation.md) Generation · [05](docs/05-training.md) Training · [06](docs/06-inference.md) Inference and serving.
+Terms and abbreviations used in the handouts, with a pointer to where each is explained. Handout numbers: [00](docs/00-orientation.md) Orientation · [01](docs/01-history.md) History · [02](docs/02-text-to-numbers.md) Tokens and embeddings · [03](docs/03-transformer.md) Transformer · [04](docs/04-generation.md) Generation · [05](docs/05-training.md) Training · [06](docs/06-inference.md) Inference and serving · [07](docs/07-architecture-variants.md) Architecture variants.
 
 Entries marked *(planned)* will be covered in a later handout. This file is updated with every new handout.
 
@@ -26,8 +26,9 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 | LoRA | Low-Rank Adaptation | 05 |
 | LSTM | Long Short-Term Memory (recurrent network) | 01 |
 | MHA | Multi-Head Attention | 03 |
+| MLA | Multi-head Latent Attention (compressed KV cache) | 07 |
 | MLP | Multi-Layer Perceptron (the feed-forward part of a block) | 03 |
-| MoE | Mixture of Experts | 01, 03, 07 *(planned)* |
+| MoE | Mixture of Experts | 01, 03, 07 |
 | MQA | Multi-Query Attention | 03 |
 | NER | Named-Entity Recognition | 03 |
 | PPO | Proximal Policy Optimization (RL algorithm) | 05 |
@@ -40,6 +41,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 | RNN | Recurrent Neural Network | 01 |
 | RoPE | Rotary Position Embedding | 02 |
 | SFT | Supervised Fine-Tuning | 05 |
+| SSM | State-Space Model | 07 |
 | T5 | Text-to-Text Transfer Transformer | 01, 03 |
 | TPOT | Time Per Output Token | 06 |
 | TTFT | Time To First Token | 06 |
@@ -65,6 +67,8 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 - **AdamW:** the standard optimizer for LLMs: adaptive per-weight step sizes, momentum, plus weight decay. 05
 - **Alignment:** shaping a model's behavior toward helpful, honest, safe responses (post-training). 05
 - **Attention:** mechanism where each token takes a weighted average of other tokens' value vectors, with weights from query-key matches. 01, 03
+- **Active parameters:** the parameters actually used for one token in an MoE model (a fraction of the total). 07
+- **Attention sink:** the first few tokens kept permanently in a streaming setup alongside a recent window. 07
 - **Attention weights:** the softmax output of the score table; each row sums to 1. 03
 - **Autoregressive:** generating one token at a time, feeding each output back as input. 00, 04
 
@@ -98,6 +102,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 
 ## E
 - **Embedding:** a learned vector representing a token (or a whole text, for embedding models). 02
+- **Expert:** one of several parallel MLPs in an MoE layer; the router picks a few per token. 07
 - **Embedding model:** model that maps a whole text to one vector, used for search and RAG. 02
 - **Emergent abilities:** skills that seem to appear suddenly at larger scale; the sharpness is debated. 05
 - **Encoder-decoder:** Transformer with a bidirectional encoder and a causal decoder linked by cross-attention (T5, Whisper). 03
@@ -119,6 +124,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 ## H
 - **Hallucination:** fluent but false or unsupported output; a result of optimizing for plausible text. 00, 09 *(planned)*
 - **Head (attention head):** one independent attention computation on a slice of the vector. 03
+- **Hybrid model:** architecture interleaving attention layers with SSM (and sometimes MoE) layers. 07
 - **Hidden state:** a token's vector inside the network after at least one block (size `d_model`). 03
 
 ## I
@@ -140,13 +146,15 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 - **Loss:** a number measuring how wrong the model is; training minimizes it. 05
 
 ## M
+- **Mamba:** an SSM architecture whose parameters depend on the input (selective SSM). 07
 - **Masked language modeling:** pretraining objective for encoders: fill in hidden words. 03
 - **Min-p:** sampling filter keeping tokens above a fraction of the top token's probability. 04
 - **Memory-bandwidth-bound:** see *compute-bound*. 06
 - **Mixed precision:** computing in 16-bit while keeping some values in 32-bit. 05
 - **MLP (feed-forward):** per-token expand-activate-shrink network in each block. 03
-- **MoE (Mixture of Experts):** only a few specialist sub-networks run per token. 01, 03, 07 *(planned)*
+- **MoE (Mixture of Experts):** a router sends each token to a few expert MLPs: compute follows active parameters, memory follows total. 01, 03, 07
 - **Multi-head attention:** several attention heads in parallel, outputs concatenated. 03
+- **Multimodal:** accepting inputs beyond text (images, audio) by encoding them into vectors the LLM attends over. 07
 
 ## N
 - **Next-token prediction:** the core objective of decoder-only LLMs. 00, 05
@@ -161,6 +169,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 - **Parameters (weights):** the learned numbers of the model. 00
 - **Perplexity:** `exp(loss)`; roughly how many tokens the model is torn between. 05
 - **Positional encoding:** information telling the model each token's position (sinusoidal, learned, RoPE, ALiBi). 02
+- **Position interpolation:** scaling positions down so a longer text fits the trained range (RoPE context extension); NTK-aware scaling and YaRN are related methods. 07
 - **PPO:** reinforcement-learning algorithm used in classic RLHF. 05
 - **Prefill:** processing the whole prompt in parallel before generating. 03
 - **Pretraining:** the large self-supervised first stage on raw text. 05
@@ -175,6 +184,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 ## R
 - **RAG:** retrieving relevant documents and adding them to the prompt. 05, 08 *(planned)*
 - **Reasoning model:** model trained (often with RL) to produce long intermediate reasoning before answering. 01, 05
+- **Router (gating network):** small layer in an MoE block that scores experts for each token. 07
 - **Residual connection:** adding a layer's output to its input. 03
 - **Reward model:** model trained on human comparisons to score answers. 05
 - **RLHF / RLAIF / RLVR:** reinforcement learning with human feedback / AI feedback / automatically verifiable rewards. 05
@@ -188,9 +198,11 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 - **Self-supervised learning:** learning from labels derived from the data itself (the next token). 05
 - **Seq2seq:** encoder-decoder RNN setup for translation-like tasks. 01
 - **SFT:** supervised fine-tuning. 05
+- **Sliding-window attention:** each token attends only to the last *w* tokens; reach grows with depth. 07
 - **Softmax:** turns scores into positive probabilities summing to 1. 03, 04
 - **Special tokens:** vocabulary entries marking structure (end of text, roles, tool calls). 02
 - **Speculative decoding:** a draft model proposes several tokens and the target verifies them in one pass; output distribution is unchanged. 06
+- **State-space model (SSM):** sequence layer with a fixed-size state updated per token; recurrent for generation, convolution for training. 07
 - **Stop sequence:** a string that ends generation when produced. 04
 - **Sycophancy:** tendency to agree with the user, partly an artifact of preference tuning. 05
 
@@ -205,6 +217,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 ## U–Z
 - **Unembedding (output projection):** final matrix turning a vector into one logit per vocabulary token. 03
 - **Value (V):** the information a token contributes when attended to. 03
+- **Vision encoder / projector:** the encoder that turns image patches into vectors / the small network mapping them to the LLM's `d_model`. 07
 - **Vocabulary:** the set of all tokens a model knows (about 30k to 250k+). 02
 - **Weight decay:** a small penalty on large weights, part of AdamW. 05
 - **ZeRO / FSDP:** techniques that shard optimizer state, gradients and weights across GPUs. 05

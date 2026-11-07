@@ -62,4 +62,5 @@ llm-explained-handouts/
 - [x] 04 Generation and sampling (draft)
 - [x] 05 Training (draft)
 - [x] 06 Inference and serving (draft)
-- [ ] 07–10
+- [x] 07 Architecture variants (draft)
+- [ ] 08–10

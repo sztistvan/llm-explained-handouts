@@ -19,7 +19,7 @@ Short, accurate, intuition-first handouts on how Large Language Models work, wri
 | 04 | [Generation and sampling](docs/04-generation.md) | draft |
 | 05 | [Training](docs/05-training.md) | draft |
 | 06 | [Inference and serving](docs/06-inference.md) | draft |
-| 07 | Architecture variants | planned |
+| 07 | [Architecture variants](docs/07-architecture-variants.md) | draft |
 | 08 | Building with LLMs | planned |
 | 09 | Pitfalls and best practices | planned |
 | 10 | Further reading | planned |
