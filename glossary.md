@@ -1,6 +1,6 @@
 # Glossary and Index
 
-Terms and abbreviations used in the handouts, with a pointer to where each is explained. Handout numbers: [00](docs/00-orientation.md) Orientation · [01](docs/01-history.md) History · [02](docs/02-text-to-numbers.md) Tokens and embeddings · [03](docs/03-transformer.md) Transformer · [04](docs/04-generation.md) Generation · [05](docs/05-training.md) Training · [06](docs/06-inference.md) Inference and serving · [07](docs/07-architecture-variants.md) Architecture variants.
+Terms and abbreviations used in the handouts, with a pointer to where each is explained. Handout numbers: [00](docs/00-orientation.md) Orientation · [01](docs/01-history.md) History · [02](docs/02-text-to-numbers.md) Tokens and embeddings · [03](docs/03-transformer.md) Transformer · [04](docs/04-generation.md) Generation · [05](docs/05-training.md) Training · [06](docs/06-inference.md) Inference and serving · [07](docs/07-architecture-variants.md) Architecture variants · [08](docs/08-building-with-llms.md) Building with LLMs.
 
 Entries marked *(planned)* will be covered in a later handout. This file is updated with every new handout.
 
@@ -9,6 +9,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 |---|---|---|
 | ALiBi | Attention with Linear Biases (positional method) | 02 |
 | AWQ | Activation-aware Weight Quantization | 06 |
+| BM25 | classic keyword-ranking function used in search | 08 |
 | BERT | Bidirectional Encoder Representations from Transformers | 01, 03 |
 | bf16 | bfloat16, a 16-bit number format common in training | 05 |
 | BPE | Byte-Pair Encoding (tokenizer algorithm) | 02 |
@@ -21,10 +22,12 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 | GPT | Generative Pre-trained Transformer | 01, 03 |
 | GPTQ | post-training weight quantization method | 06 |
 | GQA | Grouped-Query Attention | 03 |
+| HNSW | Hierarchical Navigable Small World (approximate nearest-neighbor index) | 08 |
 | KV cache | Key-Value cache | 03 |
 | LLM | Large Language Model | 00 |
 | LoRA | Low-Rank Adaptation | 05 |
 | LSTM | Long Short-Term Memory (recurrent network) | 01 |
+| MCP | Model Context Protocol (open protocol for exposing tools and data to LLM apps) | 08 |
 | MHA | Multi-Head Attention | 03 |
 | MLA | Multi-head Latent Attention (compressed KV cache) | 07 |
 | MLP | Multi-Layer Perceptron (the feed-forward part of a block) | 03 |
@@ -33,7 +36,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 | NER | Named-Entity Recognition | 03 |
 | PPO | Proximal Policy Optimization (RL algorithm) | 05 |
 | QLoRA | Quantized LoRA | 05 |
-| RAG | Retrieval-Augmented Generation | 05, 08 *(planned)* |
+| RAG | Retrieval-Augmented Generation | 05, 08 |
 | RLAIF | Reinforcement Learning from AI Feedback | 05 |
 | RLHF | Reinforcement Learning from Human Feedback | 01, 05 |
 | RLVR | Reinforcement Learning with Verifiable Rewards | 05 |
@@ -67,6 +70,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 - **AdamW:** the standard optimizer for LLMs: adaptive per-weight step sizes, momentum, plus weight decay. 05
 - **Alignment:** shaping a model's behavior toward helpful, honest, safe responses (post-training). 05
 - **Attention:** mechanism where each token takes a weighted average of other tokens' value vectors, with weights from query-key matches. 01, 03
+- **Agent:** an LLM running a tool-use loop and choosing its own next steps; contrast with a *workflow*. 08
 - **Active parameters:** the parameters actually used for one token in an MoE model (a fraction of the total). 07
 - **Attention sink:** the first few tokens kept permanently in a streaming setup alongside a recent window. 07
 - **Attention weights:** the softmax output of the score table; each row sums to 1. 03
@@ -84,6 +88,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 ## C
 - **Causal mask:** blocks attention to later positions so token *i* only sees tokens ≤ *i*. 03
 - **Chinchilla:** 2022 result: scale parameters and training tokens together (about 20 tokens per parameter). 01, 05
+- **Chunking:** splitting documents into overlapping passages for embedding and retrieval. 08
 - **Compute-bound / memory-bandwidth-bound:** limited by arithmetic speed (prefill) / by how fast data can be read from memory (decode). 06
 - **Constitutional AI:** a method where a model uses written principles to critique and generate preference labels. 05
 - **Constrained decoding:** masking illegal tokens at each step to guarantee a grammar or JSON schema. 04
@@ -110,11 +115,13 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 - **EOS token (end of sequence):** special token the model emits to say it is finished. 04
 
 ## F
+- **Few-shot prompting:** giving a few input-output examples in the prompt (in-context learning). 08
 - **Fine-tuning:** further training of a pretrained model on a narrower dataset. 05
 - **FlashAttention:** exact attention computed in on-chip tiles, avoiding the full `n × n` table in slow memory. 06
 - **FLOPs:** count of arithmetic operations; training ≈ `6·N·D`. 05
 
 ## G
+- **Function calling / tool use:** the model emits a structured request naming a tool and arguments; your code validates and runs it. 08
 - **GELU:** a smooth activation function used in many Transformers. 03
 - **Gradient / gradient descent:** the direction of steepest loss increase / repeatedly stepping weights the opposite way. 05
 - **Gradient clipping:** capping very large gradients to avoid unstable training. 05
@@ -124,6 +131,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 ## H
 - **Hallucination:** fluent but false or unsupported output; a result of optimizing for plausible text. 00, 09 *(planned)*
 - **Head (attention head):** one independent attention computation on a slice of the vector. 03
+- **Hybrid search:** combining vector (semantic) search with keyword search. 08
 - **Hybrid model:** architecture interleaving attention layers with SSM (and sometimes MoE) layers. 07
 - **Hidden state:** a token's vector inside the network after at least one block (size `d_model`). 03
 
@@ -174,6 +182,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 - **Prefill:** processing the whole prompt in parallel before generating. 03
 - **Pretraining:** the large self-supervised first stage on raw text. 05
 - **Prefix caching:** reusing the KV cache for a shared prompt prefix across requests; sold by providers as prompt caching. 06
+- **Prompt chaining:** splitting a task into several LLM calls, each feeding the next. 08
 - **Prompt caching:** reusing the KV cache of an unchanged prompt prefix to save cost and latency. 03, 06
 
 ## Q
@@ -182,7 +191,8 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 - **Query (Q):** vector a token uses to search for relevant tokens. 03
 
 ## R
-- **RAG:** retrieving relevant documents and adding them to the prompt. 05, 08 *(planned)*
+- **RAG:** retrieving relevant documents and adding them to the prompt, so answers are grounded in your data. 05, 08
+- **Reranking:** reordering or filtering retrieved passages with a stronger model before prompting. 08
 - **Reasoning model:** model trained (often with RL) to produce long intermediate reasoning before answering. 01, 05
 - **Router (gating network):** small layer in an MoE block that scores experts for each token. 07
 - **Residual connection:** adding a layer's output to its input. 03
@@ -207,6 +217,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 - **Sycophancy:** tendency to agree with the user, partly an artifact of preference tuning. 05
 
 ## T
+- **System prompt:** standing instructions given to the model before the conversation. 08
 - **Teacher forcing:** training with the true previous tokens as input, so every position yields a loss in one pass. 05
 - **Temperature:** divides logits before softmax; low = focused, high = random. 04
 - **Token / tokenizer:** a sub-word piece with an integer ID / the component that splits text into them. 02
@@ -217,7 +228,9 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 ## U–Z
 - **Unembedding (output projection):** final matrix turning a vector into one logit per vocabulary token. 03
 - **Value (V):** the information a token contributes when attended to. 03
+- **Vector database / index:** store that finds the nearest embeddings to a query vector. 08
 - **Vision encoder / projector:** the encoder that turns image patches into vectors / the small network mapping them to the LLM's `d_model`. 07
 - **Vocabulary:** the set of all tokens a model knows (about 30k to 250k+). 02
+- **Workflow:** a fixed sequence of steps in your code, some of which call an LLM; contrast with an *agent*. 08
 - **Weight decay:** a small penalty on large weights, part of AdamW. 05
 - **ZeRO / FSDP:** techniques that shard optimizer state, gradients and weights across GPUs. 05

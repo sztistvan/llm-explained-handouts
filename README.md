@@ -20,7 +20,7 @@ Short, accurate, intuition-first handouts on how Large Language Models work, wri
 | 05 | [Training](docs/05-training.md) | draft |
 | 06 | [Inference and serving](docs/06-inference.md) | draft |
 | 07 | [Architecture variants](docs/07-architecture-variants.md) | draft |
-| 08 | Building with LLMs | planned |
+| 08 | [Building with LLMs](docs/08-building-with-llms.md) | draft |
 | 09 | Pitfalls and best practices | planned |
 | 10 | Further reading | planned |
 
@@ -35,6 +35,11 @@ Activate it (`source .venv/bin/activate` on macOS/Linux, `.venv\Scripts\activate
 pip install -r requirements-dev.txt
 pytest
 python examples/python/toy_bpe.py
+```
+JavaScript examples (Node 20+, no dependencies):
+```bash
+npm test
+node examples/js/tool_loop.js
 ```
 The tiktoken example downloads its encoding file on first use (network needed); its test skips when offline.
 
