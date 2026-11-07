@@ -10,7 +10,50 @@ import attention
 import bigram
 import embeddings_demo
 import numpy as np
+import sampling
 import toy_bpe
+
+
+LOGITS = np.array([3.0, 2.0, 0.5, -1.0])
+
+
+def test_temperature_sharpens_and_flattens():
+    cold = sampling.next_token_distribution(LOGITS, temperature=0.2)
+    base = sampling.next_token_distribution(LOGITS, temperature=1.0)
+    hot = sampling.next_token_distribution(LOGITS, temperature=2.0)
+    assert cold.max() > base.max() > hot.max()
+    for p in (cold, base, hot):
+        assert p.sum() == pytest.approx(1.0)
+
+
+def test_temperature_zero_is_greedy():
+    assert sampling.sample(LOGITS, temperature=0) == 0
+
+
+def test_top_k_keeps_k_tokens():
+    p = sampling.next_token_distribution(LOGITS, top_k=2)
+    assert (p > 0).sum() == 2 and p.sum() == pytest.approx(1.0)
+
+
+def test_top_p_keeps_smallest_set_reaching_p():
+    probs = sampling.softmax(LOGITS)          # ~[0.68, 0.25, 0.06, 0.01]
+    p = sampling.top_p_filter(probs, 0.9)
+    assert (p > 0).sum() == 2                 # 0.68 + 0.25 >= 0.9
+    p = sampling.top_p_filter(probs, 0.5)
+    assert (p > 0).sum() == 1                 # top token alone already >= 0.5
+
+
+def test_sampling_never_picks_filtered_tokens():
+    rng = np.random.default_rng(0)
+    picks = {sampling.sample(LOGITS, 1.0, top_k=2, rng=rng) for _ in range(200)}
+    assert picks <= {0, 1}
+
+
+def test_beam_search_beats_greedy_on_toy_model():
+    g_seq, g_lp = sampling.greedy_search(sampling.toy_model, 2)
+    best_seq, best_lp = sampling.beam_search(sampling.toy_model, 2, 2)[0]
+    assert g_seq[0] == "A" and best_seq == ["B", "z"]
+    assert best_lp > g_lp
 
 
 def test_softmax_rows_sum_to_one():

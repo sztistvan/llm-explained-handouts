@@ -14,7 +14,7 @@ Short, accurate, intuition-first handouts on how Large Language Models work, wri
 | 01 | [History](docs/01-history.md) | draft |
 | 02 | [Text to numbers: tokens and embeddings](docs/02-text-to-numbers.md) | draft |
 | 03 | [The Transformer and model taxonomy](docs/03-transformer.md) | draft |
-| 04 | Generation and sampling | planned |
+| 04 | [Generation and sampling](docs/04-generation.md) | draft |
 | 05 | Training | planned |
 | 06 | Inference and serving | planned |
 | 07 | Architecture variants | planned |
