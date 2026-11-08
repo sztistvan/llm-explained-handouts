@@ -7,20 +7,27 @@ Language modeling (predicting the next word) is old. What changed is *how* we mo
 
 ```mermaid
 timeline
-    title From n-grams to LLMs
-    1948-1990s : n-gram models (Shannon, statistical NLP)
-    1997 : LSTM (Hochreiter and Schmidhuber)
-    2003 : Neural language model (Bengio et al.)
-    2013 : word2vec (word embeddings)
-    2014 : seq2seq (Sutskever et al.) and attention (Bahdanau et al.)
-    2017 : Transformer ("Attention Is All You Need")
-    2018 : GPT-1, BERT, ELMo
-    2019 : GPT-2, T5
-    2020 : GPT-3 (175B), scaling laws (Kaplan et al.)
-    2022 : Chinchilla, InstructGPT, ChatGPT
-    2023 : LLaMA, GPT-4, Mistral 7B, Mixtral (open models and MoE)
-    2024-2025 : Reasoning models (o1, DeepSeek-R1), long context, multimodal
+    title Part 1: from counting words to the Transformer (1948-2017)
+    1948-1990s : n-gram models
+    1997 : LSTM
+    2003 : Neural language model
+    2013 : word2vec embeddings
+    2014 : seq2seq : Attention
+    2017 : Transformer
 ```
+
+```mermaid
+timeline
+    title Part 2: scale, assistants and efficiency (2018-2025)
+    2018 : GPT-1 : BERT : ELMo
+    2019 : GPT-2 : T5
+    2020 : GPT-3 (175B) : Scaling laws
+    2022 : Chinchilla : InstructGPT : ChatGPT
+    2023 : LLaMA : GPT-4 : Mistral 7B : Mixtral (MoE)
+    2024-2025 : Reasoning models : Long context : Multimodal
+```
+
+Key papers behind Part 1: LSTM (Hochreiter and Schmidhuber), neural language model (Bengio et al.), seq2seq (Sutskever et al.), attention (Bahdanau et al.), Transformer ("Attention Is All You Need", Vaswani et al.). The sections below explain each step.
 
 ## Era by era
 
