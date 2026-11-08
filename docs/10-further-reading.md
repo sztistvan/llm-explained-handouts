@@ -17,6 +17,7 @@ Curated next steps, grouped by purpose. Papers link to arXiv. Resources change, 
 - Andrej Karpathy, [*Intro to Large Language Models*](https://www.youtube.com/watch?v=zjkBMFhNj_g) and [*Deep Dive into LLMs like ChatGPT*](https://www.youtube.com/watch?v=7xTGNNLPyMI) (videos): the whole pipeline in about an hour or three.
 - Jay Alammar, [*The Illustrated Transformer*](https://jalammar.github.io/illustrated-transformer/) and [*The Illustrated GPT-2*](https://jalammar.github.io/illustrated-gpt2/): the best visual walk-throughs of attention.
 - 3Blue1Brown, [*Neural networks* series](https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi) (its chapters on GPT and transformers): animated explanations of embeddings and attention.
+- [*LLM Visualization*](https://bbycroft.net/llm): an interactive 3D walkthrough of a GPT model (a tiny 85,000-parameter one, plus GPT-2 and GPT-3 views), from embedding through attention and the MLP to softmax. Best on a desktop browser.
 - Hugging Face, [*LLM Course*](https://huggingface.co/learn): hands-on, with code.
 
 ## Learn by building

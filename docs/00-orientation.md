@@ -103,3 +103,4 @@ An LLM replaces the lookup table `counts` with a neural network that can use the
 ## Further reading
 - Karpathy, [*Intro to Large Language Models*](https://www.youtube.com/watch?v=zjkBMFhNj_g) (video, 1 hour)
 - Jay Alammar, [*The Illustrated GPT-2*](https://jalammar.github.io/illustrated-gpt2/)
+- [*LLM Visualization*](https://bbycroft.net/llm): an interactive 3D walkthrough of the same pipeline (tokens, embeddings, Transformer layers, softmax)

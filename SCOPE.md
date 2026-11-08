@@ -67,4 +67,4 @@ llm-explained-handouts/
 - [x] 07 Architecture variants (draft)
 - [x] 08 Building with LLMs (draft)
 - [x] 09 Pitfalls and best practices (draft)
-- [x] 10 Further reading (draft; all external links in the handouts, 77 distinct, were verified on 2026-11-08 with `tools/check_links.py`)
+- [x] 10 Further reading (draft; all external links in the handouts, 78 distinct, were verified on 2026-11-08 with `tools/check_links.py`)

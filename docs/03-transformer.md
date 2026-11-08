@@ -23,6 +23,8 @@ flowchart TB
 ```
 Every block takes a `(sequence length × d_model)` matrix and returns one of the **same shape**. That is why blocks can be stacked as deep as you like.
 
+> **Try it:** [LLM Visualization](https://bbycroft.net/llm) is an interactive 3D walkthrough of a GPT model, from embedding through attention and the MLP to softmax. It shows the same structure as the diagrams here, first on a tiny model and then at GPT-2 and GPT-3 scale. Its terms differ slightly: it says "feed forward" and "projection" where this handout says MLP and output projection, and it uses LayerNorm (as GPT-2 does) where many newer models use RMSNorm.
+
 ### Inside one block (modern decoder, "pre-norm" style)
 ```mermaid
 flowchart TB
@@ -296,6 +298,7 @@ Need chat, code, reasoning, tools, flexible tasks?    -> decoder-only
 ## Further reading
 - Vaswani et al., [*Attention Is All You Need*](https://arxiv.org/abs/1706.03762) (2017)
 - Jay Alammar, [*The Illustrated Transformer*](https://jalammar.github.io/illustrated-transformer/)
+- [*LLM Visualization*](https://bbycroft.net/llm): interactive 3D walkthrough of a GPT model (best on a desktop browser)
 - Karpathy, [*Let's build GPT: from scratch, in code*](https://www.youtube.com/watch?v=kCc8FmEb1nY) (video) and the [`nanoGPT`](https://github.com/karpathy/nanoGPT) repo
 - Devlin et al., [*BERT*](https://arxiv.org/abs/1810.04805) (2018); Raffel et al., [*T5*](https://arxiv.org/abs/1910.10683) (2019); Radford et al., [*Language Models are Unsupervised Multitask Learners*](https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf) (GPT-2, 2019)
 - Shazeer, [*Fast Transformer Decoding: One Write-Head is All You Need*](https://arxiv.org/abs/1911.02150) (MQA, 2019)
