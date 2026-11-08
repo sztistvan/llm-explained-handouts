@@ -110,6 +110,34 @@ def test_causal_output_independent_of_future_tokens():
     assert np.allclose(out1[:4], out2[:4])          # earlier positions unaffected
 
 
+def test_swapping_q_and_k_transposes_the_score_table():
+    rng = np.random.default_rng(4)
+    X = rng.normal(size=(5, 8))
+    Wq, Wk = rng.normal(size=(8, 4)), rng.normal(size=(8, 4))
+    S = (X @ Wq) @ (X @ Wk).T                      # score_ij = q_i . k_j
+    S_swapped = (X @ Wk) @ (X @ Wq).T
+    assert np.allclose(S_swapped, S.T)             # swapped roles = reversed relation
+    assert np.allclose(S, X @ (Wq @ Wk.T) @ X.T)   # only M = Wq Wk^T matters
+    assert not np.allclose(S, S.T)                 # separate Wq, Wk give an asymmetric relation
+    W = Wq
+    S_same = (X @ W) @ (X @ W).T
+    assert np.allclose(S_same, S_same.T)           # Wq == Wk would force a symmetric relation
+
+
+def test_cached_keys_and_values_do_not_change_when_tokens_are_appended():
+    rng = np.random.default_rng(5)
+    Wk, Wv = rng.normal(size=(8, 4)), rng.normal(size=(8, 4))
+    x = rng.normal(size=(6, 8))
+    # Layer-0 style check: k_i, v_i depend only on token i's own vector
+    assert np.allclose((x[:4] @ Wk), (x @ Wk)[:4])
+    assert np.allclose((x[:4] @ Wv), (x @ Wv)[:4])
+    # In a causal stack, a position's hidden state also ignores later tokens
+    block = attention.init_block(8, 16, rng)
+    h_short = attention.transformer_block(x[:4], block, n_heads=2)
+    h_long = attention.transformer_block(x, block, n_heads=2)[:4]
+    assert np.allclose(h_short, h_long)
+
+
 def test_transformer_block_preserves_shape():
     rng = np.random.default_rng(3)
     x = rng.normal(size=(6, 16))

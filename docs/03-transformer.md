@@ -107,6 +107,30 @@ flowchart LR
 4. **`softmax`**: turn each row of scores into weights that are positive and sum to 1.
 5. **`· V`**: use the weights to average the value vectors.
 
+### Why "query", "key" and "value"? What if you swap them?
+The names are an **analogy to a lookup** (ask a question, match it against labels, get the content). Nothing inside `W_Q` or `W_K` is intrinsically "query-like". A matrix gets its role only from **where its output is used in the formula**:
+
+- `Q` is the first factor of `Q · Kᵀ`: its rows are the **asking** side of the score table.
+- `K` is the second factor: its rows are what gets **matched against**, and softmax normalizes the weights over this side.
+- `V` is what is actually **averaged and returned**.
+
+Training then shapes each matrix so that it does its job well. The roles are learned, not built in.
+
+**What if you swap Q and K?** It depends on what exactly you swap:
+- **Rename only, then train from scratch:** nothing changes. The matrices start random, so "the matrix in the first slot" simply learns to be the asking side. The names are labels.
+- **Swap them in an already trained model** (use `W_K` where `W_Q` was): the score table becomes its **transpose**, and softmax now normalizes along the other direction. That is a different function, and the trained model breaks.
+
+A way to see the mechanism: the score between token *i* and token *j* is
+
+```text
+score_ij = (x_i · W_Q) · (x_j · W_K) = x_i · (W_Q · W_Kᵀ) · x_jᵀ
+```
+so the model really learns **one matrix `M = W_Q · W_Kᵀ`** that says "how much does token *i* care about token *j*". Swapping Q and K replaces `M` by `Mᵀ`, which reverses the relation to "how much does *j* care about *i*".
+
+**Why two matrices, not one?** If `W_Q = W_K`, then `M = W·Wᵀ` is symmetric: *i* would always care about *j* exactly as much as *j* cares about *i*. Language needs asymmetry: `it` looks for `animal`, but `animal` does not look for `it`. Two separate matrices allow an asymmetric `M`. Splitting it into two thin matrices (`d_model × d_k`) is also cheaper than one full `d_model × d_model` matrix, and it lets each token's key be computed once and reused (see the KV cache below).
+
+**Why a separate `V`?** What makes a token *findable* (its key) is not the same as what it *contributes* once found (its value).
+
 ### The causal mask
 In a decoder, the "every token j in the visible context" above is restricted by the mask: token *i* may only compare its query with the keys of tokens at positions ≤ *i* (itself and earlier ones). The scores for later positions are blocked before softmax, so they get weight 0 and contribute nothing.
 ```text
@@ -168,6 +192,15 @@ When generating token by token, the keys and values of *earlier* tokens never ch
 without cache: step t recomputes K,V for all t tokens   -> wasteful
 with cache:    step t computes K,V for 1 new token, reads the rest from memory
 ```
+**But K and V are computed for every token. How can they be cached?** "Computed for every token" means each token's `k` and `v` are computed **once**, when that token is first processed, and then **reused** instead of recomputed. That is safe for two reasons:
+
+1. `k_i = x_i · W_K` and `v_i = x_i · W_V` depend only on token *i*'s own vector `x_i` (at that layer) and on fixed weights.
+2. Thanks to the causal mask, `x_i` at every layer depends only on tokens up to *i*, never on later ones. Layer 1 sees only tokens ≤ *i*, so its outputs for position *i* do too, and by induction so does every later layer. Appending new tokens therefore never changes `x_i`, `k_i` or `v_i`.
+
+**Q is not cached because it is never needed again.** `q_i` is used only once, to compute token *i*'s own output. A later token *t* uses **its own** query `q_t` against the stored keys and values of earlier tokens.
+
+So one decode step for a new token *t* is: compute `q_t`, `k_t`, `v_t`; append `k_t`, `v_t` to the cache; attend `q_t` over all cached keys and values; discard `q_t`. Each layer (and each head) keeps its own cache. This works only for causal models. In a bidirectional encoder, earlier tokens' vectors do change when later tokens are added, so nothing could be reused. The cache is also valid only for an **identical prefix**, which is why prompt caching needs a stable start of the prompt (handout 06). [`examples/python/kv_cache.py`](../examples/python/kv_cache.py) shows identical outputs with 50 instead of 1,275 key/value projections.
+
 Consequences developers should know:
 - Cached prompts are cheaper and faster, which is why providers offer **prompt caching** for stable prefixes.
 - The cache grows with context length and consumes **GPU memory**, often the real limit on concurrent users.
