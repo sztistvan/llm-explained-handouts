@@ -47,6 +47,16 @@ def test_every_handout_is_in_the_readme_and_glossary_header():
             assert f"docs/{h.name}" in readme
 
 
+@pytest.mark.parametrize("md", HANDOUTS[:10], ids=lambda p: p.name)
+def test_every_further_reading_entry_has_a_web_link(md):
+    text = md.read_text(encoding="utf-8")
+    section = text.split("## Further reading", 1)[1]
+    entries = [l for l in section.splitlines() if l.startswith("- ")]
+    assert entries, f"{md.name}: empty Further reading"
+    for line in entries:
+        assert re.search(r"\]\(https?://", line), f"{md.name}: no link in: {line[:70]}"
+
+
 def test_every_example_file_referenced_in_docs_exists():
     for md in HANDOUTS:
         for ref in re.findall(r"\.\./(examples/[\w/.\-]+)", md.read_text(encoding="utf-8")):

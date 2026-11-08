@@ -211,9 +211,9 @@ Most of the time you will see architecture only through its **price, speed, and 
 - SSMs keep a fixed-size state: cheap generation, weaker exact recall. Hybrids combine them with attention.
 
 ## Further reading
-- Shazeer et al., *Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts Layer* (2017); Jiang et al., *Mixtral of Experts* (2024)
-- Chen et al., *Extending Context Window of Large Language Models via Positional Interpolation* (2023); Peng et al., *YaRN* (2023)
-- Beltagy et al., *Longformer* (2020); Jiang et al., *Mistral 7B* (2023)
-- Liu et al., *Visual Instruction Tuning* (LLaVA, 2023)
-- Gu and Dao, *Mamba: Linear-Time Sequence Modeling with Selective State Spaces* (2023); Lieber et al., *Jamba* (2024)
-- Liu et al., *Lost in the Middle* (2023)
+- Shazeer et al., [*Outrageously Large Neural Networks: The Sparsely-Gated Mixture-of-Experts Layer*](https://arxiv.org/abs/1701.06538) (2017); Jiang et al., [*Mixtral of Experts*](https://arxiv.org/abs/2401.04088) (2024)
+- Chen et al., [*Extending Context Window of Large Language Models via Positional Interpolation*](https://arxiv.org/abs/2306.15595) (2023); Peng et al., [*YaRN*](https://arxiv.org/abs/2309.00071) (2023)
+- Beltagy et al., [*Longformer*](https://arxiv.org/abs/2004.05150) (2020); Jiang et al., [*Mistral 7B*](https://arxiv.org/abs/2310.06825) (2023)
+- Liu et al., [*Visual Instruction Tuning*](https://arxiv.org/abs/2304.08485) (LLaVA, 2023)
+- Gu and Dao, [*Mamba: Linear-Time Sequence Modeling with Selective State Spaces*](https://arxiv.org/abs/2312.00752) (2023); Lieber et al., [*Jamba*](https://arxiv.org/abs/2403.19887) (2024)
+- Liu et al., [*Lost in the Middle*](https://arxiv.org/abs/2307.03172) (2023)

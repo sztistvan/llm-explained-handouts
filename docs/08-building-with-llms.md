@@ -274,8 +274,8 @@ if errors: retry with the error text appended (limited times), else fall back / 
 - Prefer a simple call, then a workflow, then an agent, and add autonomy only when needed.
 
 ## Further reading
-- Anthropic, *Building effective agents* (workflow and agent patterns)
-- Your provider's docs on prompting, tool use and structured output
-- Lewis et al., *Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks* (2020)
-- Yao et al., *ReAct: Synergizing Reasoning and Acting in Language Models* (2022)
-- Model Context Protocol documentation (modelcontextprotocol.io)
+- Anthropic, [*Building effective agents*](https://www.anthropic.com/engineering/building-effective-agents) (workflow and agent patterns)
+- Provider docs on prompting, tool use and structured output: [Anthropic](https://platform.claude.com/docs/en/home), [OpenAI](https://developers.openai.com/api/docs)
+- Lewis et al., [*Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks*](https://arxiv.org/abs/2005.11401) (2020)
+- Yao et al., [*ReAct: Synergizing Reasoning and Acting in Language Models*](https://arxiv.org/abs/2210.03629) (2022)
+- [Model Context Protocol documentation](https://modelcontextprotocol.io/)

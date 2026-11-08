@@ -198,8 +198,8 @@ The practical lesson for developers: **public leaderboards help you shortlist, b
 - Evaluate on your own tasks, and treat public benchmarks with care.
 
 ## Further reading
-- Kaplan et al., *Scaling Laws for Neural Language Models* (2020); Hoffmann et al., *Chinchilla* (2022)
-- Ouyang et al., *Training language models to follow instructions with human feedback* (2022)
-- Rafailov et al., *Direct Preference Optimization* (2023)
-- Hu et al., *LoRA* (2021); Dettmers et al., *QLoRA* (2023)
-- Karpathy, *State of GPT* (talk) and *Let's reproduce GPT-2* (video)
+- Kaplan et al., [*Scaling Laws for Neural Language Models*](https://arxiv.org/abs/2001.08361) (2020); Hoffmann et al., [*Chinchilla*](https://arxiv.org/abs/2203.15556) (2022)
+- Ouyang et al., [*Training language models to follow instructions with human feedback*](https://arxiv.org/abs/2203.02155) (2022)
+- Rafailov et al., [*Direct Preference Optimization*](https://arxiv.org/abs/2305.18290) (2023)
+- Hu et al., [*LoRA*](https://arxiv.org/abs/2106.09685) (2021); Dettmers et al., [*QLoRA*](https://arxiv.org/abs/2305.14314) (2023)
+- Karpathy, [*State of GPT*](https://www.youtube.com/watch?v=bZQun8Y4L2A) (talk, Microsoft Build 2023) and [*Let's reproduce GPT-2 (124M)*](https://www.youtube.com/watch?v=l8pRSuU81PU) (video)

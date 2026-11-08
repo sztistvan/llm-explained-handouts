@@ -211,9 +211,9 @@ A bigger context window costs more (memory, latency, money) and models do not al
 - For developers: count tokens, keep prompts short and prefixes stable, right-size the model, stream, and evaluate after every optimization.
 
 ## Further reading
-- Kwon et al., *Efficient Memory Management for Large Language Model Serving with PagedAttention* (vLLM, 2023)
-- Dao et al., *FlashAttention* (2022)
-- Leviathan et al., *Fast Inference from Transformers via Speculative Decoding* (2022)
-- Yu et al., *Orca: A Distributed Serving System for Transformer-Based Generative Models* (continuous batching, 2022)
-- Frantar et al., *GPTQ* (2022); Lin et al., *AWQ* (2023)
-- Your serving engine's docs (vLLM, llama.cpp, TensorRT-LLM) for current options
+- Kwon et al., [*Efficient Memory Management for Large Language Model Serving with PagedAttention*](https://arxiv.org/abs/2309.06180) (vLLM, 2023)
+- Dao et al., [*FlashAttention*](https://arxiv.org/abs/2205.14135) (2022)
+- Leviathan et al., [*Fast Inference from Transformers via Speculative Decoding*](https://arxiv.org/abs/2211.17192) (2022)
+- Yu et al., [*Orca: A Distributed Serving System for Transformer-Based Generative Models*](https://www.usenix.org/conference/osdi22/presentation/yu) (continuous batching, 2022)
+- Frantar et al., [*GPTQ*](https://arxiv.org/abs/2210.17323) (2022); Lin et al., [*AWQ*](https://arxiv.org/abs/2306.00978) (2023)
+- Serving engines for current options: [vLLM docs](https://docs.vllm.ai/en/latest/), [llama.cpp](https://github.com/ggml-org/llama.cpp), [TensorRT-LLM](https://github.com/NVIDIA/TensorRT-LLM)

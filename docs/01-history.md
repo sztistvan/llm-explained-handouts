@@ -108,8 +108,8 @@ A base model continues text. It does not follow instructions. **Instruction tuni
 - The Transformer's parallelism enabled scale. Scale and alignment produced today's LLMs.
 
 ## Further reading
-- Vaswani et al., *Attention Is All You Need* (2017)
-- Bahdanau et al., *Neural Machine Translation by Jointly Learning to Align and Translate* (2014)
-- Kaplan et al., *Scaling Laws for Neural Language Models* (2020)
-- Hoffmann et al., *Training Compute-Optimal Large Language Models* (Chinchilla, 2022)
-- Ouyang et al., *Training language models to follow instructions with human feedback* (2022)
+- Vaswani et al., [*Attention Is All You Need*](https://arxiv.org/abs/1706.03762) (2017)
+- Bahdanau et al., [*Neural Machine Translation by Jointly Learning to Align and Translate*](https://arxiv.org/abs/1409.0473) (2014)
+- Kaplan et al., [*Scaling Laws for Neural Language Models*](https://arxiv.org/abs/2001.08361) (2020)
+- Hoffmann et al., [*Training Compute-Optimal Large Language Models*](https://arxiv.org/abs/2203.15556) (Chinchilla, 2022)
+- Ouyang et al., [*Training language models to follow instructions with human feedback*](https://arxiv.org/abs/2203.02155) (2022)

@@ -202,9 +202,9 @@ raise / fall back / escalate to a human
 - Validate and retry structured output. Budget tokens, set timeouts, back off on errors, and monitor in production.
 
 ## Further reading
-- OWASP, *Top 10 for LLM Applications*
-- NIST, *AI Risk Management Framework*
-- Simon Willison's writing on prompt injection and the "lethal trifecta"
-- Zheng et al., *Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena* (2023)
-- Ji et al., *Survey of Hallucination in Natural Language Generation* (2022)
-- Your provider's guides on evals, safety best practices and data handling
+- OWASP, [*Top 10 for LLM Applications*](https://owasp.org/www-project-top-10-for-large-language-model-applications/)
+- NIST, [*AI Risk Management Framework*](https://www.nist.gov/itl/ai-risk-management-framework)
+- Simon Willison, [*The lethal trifecta for AI agents*](https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/) and his [prompt injection series](https://simonwillison.net/series/prompt-injection/)
+- Zheng et al., [*Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena*](https://arxiv.org/abs/2306.05685) (2023)
+- Ji et al., [*Survey of Hallucination in Natural Language Generation*](https://arxiv.org/abs/2202.03629) (2022)
+- Provider guides on evals, safety best practices and data handling: [Anthropic](https://platform.claude.com/docs/en/home), [OpenAI](https://developers.openai.com/api/docs)

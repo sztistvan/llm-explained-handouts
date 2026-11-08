@@ -14,16 +14,16 @@ Curated next steps, grouped by purpose. Papers link to arXiv. Resources change, 
 ---
 
 ## Start here (intuition first)
-- Andrej Karpathy, *Intro to Large Language Models* and *Deep Dive into LLMs like ChatGPT* (videos): the whole pipeline in about an hour or three.
-- Jay Alammar, [*The Illustrated Transformer*](https://jalammar.github.io/illustrated-transformer/) and *The Illustrated GPT-2*: the best visual walk-throughs of attention.
-- 3Blue1Brown, *Deep Learning* series (chapters on GPT and transformers): animated explanations of embeddings and attention.
+- Andrej Karpathy, [*Intro to Large Language Models*](https://www.youtube.com/watch?v=zjkBMFhNj_g) and [*Deep Dive into LLMs like ChatGPT*](https://www.youtube.com/watch?v=7xTGNNLPyMI) (videos): the whole pipeline in about an hour or three.
+- Jay Alammar, [*The Illustrated Transformer*](https://jalammar.github.io/illustrated-transformer/) and [*The Illustrated GPT-2*](https://jalammar.github.io/illustrated-gpt2/): the best visual walk-throughs of attention.
+- 3Blue1Brown, [*Neural networks* series](https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi) (its chapters on GPT and transformers): animated explanations of embeddings and attention.
 - Hugging Face, [*LLM Course*](https://huggingface.co/learn): hands-on, with code.
 
 ## Learn by building
-- Karpathy, *Neural Networks: Zero to Hero* (videos), especially *Let's build GPT: from scratch, in code* and *Let's build the GPT Tokenizer*.
+- Karpathy, [*Neural Networks: Zero to Hero*](https://karpathy.ai/zero-to-hero.html) (videos), especially [*Let's build GPT: from scratch, in code*](https://www.youtube.com/watch?v=kCc8FmEb1nY) and [*Let's build the GPT Tokenizer*](https://www.youtube.com/watch?v=zduSFxRajkE).
 - Code to read: [nanoGPT](https://github.com/karpathy/nanoGPT) (a small, readable GPT), [minbpe](https://github.com/karpathy/minbpe) (a BPE tokenizer in about 300 lines).
-- Sebastian Raschka, *Build a Large Language Model (From Scratch)* (book).
-- Stanford courses: CS224N (NLP with deep learning) and CS336 (Language Modeling from Scratch). Lecture materials are public.
+- Sebastian Raschka, [*Build a Large Language Model (From Scratch)*](https://www.manning.com/books/build-a-large-language-model-from-scratch) (book).
+- Stanford courses: [CS224N](https://web.stanford.edu/class/cs224n/) (NLP with deep learning) and [CS336](https://cs336.stanford.edu/) (Language Modeling from Scratch). Lecture materials are public.
 
 ---
 
@@ -102,16 +102,16 @@ Matching the handouts. Start with the first and the starred ones. Skim the rest 
 - Anthropic, [*Building effective agents*](https://www.anthropic.com/engineering/building-effective-agents): workflows vs agents, with patterns.
 - [Model Context Protocol](https://modelcontextprotocol.io/): documentation and specification.
 - [OWASP Top 10 for LLM Applications](https://owasp.org/www-project-top-10-for-large-language-model-applications/): the standard security checklist.
-- NIST, *AI Risk Management Framework*: governance and risk vocabulary.
-- Simon Willison's blog (simonwillison.net): practical writing on prompt injection and the "lethal trifecta".
-- Your provider's documentation: prompting guides, tool use, structured outputs, evals, data handling.
+- NIST, [*AI Risk Management Framework*](https://www.nist.gov/itl/ai-risk-management-framework): governance and risk vocabulary.
+- [Simon Willison's blog](https://simonwillison.net/): practical writing on prompt injection and the ["lethal trifecta"](https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/).
+- Your provider's documentation (for example [Anthropic](https://platform.claude.com/docs/en/home) or [OpenAI](https://developers.openai.com/api/docs)): prompting guides, tool use, structured outputs, evals, data handling.
 
 ## Inference and efficiency
 - [vLLM](https://github.com/vllm-project/vllm) (continuous batching, PagedAttention) and [llama.cpp](https://github.com/ggml-org/llama.cpp) (local inference, GGUF quantization): read the docs and issues to see real trade-offs.
 - Hugging Face blog, *How to generate text: using different decoding methods*: decoding in code.
 
 ## Staying current
-- arXiv categories cs.CL (computation and language) and cs.LG (machine learning), plus Hugging Face's daily papers page.
+- arXiv categories [cs.CL](https://arxiv.org/list/cs.CL/recent) (computation and language) and [cs.LG](https://arxiv.org/list/cs.LG/recent) (machine learning), plus Hugging Face's [daily papers](https://huggingface.co/papers) page.
 - Model cards and technical reports from labs. They are the primary source for architecture and training facts, and the best antidote to rumor.
 - Leaderboards help to shortlist models, but verify on your own evals (handouts 05 and 09).
 

@@ -101,5 +101,5 @@ An LLM replaces the lookup table `counts` with a neural network that can use the
 - Context window is the model's only working memory.
 
 ## Further reading
-- Karpathy, *Intro to Large Language Models* (video)
-- Jay Alammar, *The Illustrated GPT-2*
+- Karpathy, [*Intro to Large Language Models*](https://www.youtube.com/watch?v=zjkBMFhNj_g) (video, 1 hour)
+- Jay Alammar, [*The Illustrated GPT-2*](https://jalammar.github.io/illustrated-gpt2/)

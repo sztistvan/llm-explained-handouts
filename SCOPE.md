@@ -52,6 +52,8 @@ llm-explained-handouts/
   docs/            00-orientation.md … 10-further-reading.md
   diagrams/
   examples/python/  examples/js/
+  tests/            pytest suite (examples and documentation checks)
+  tools/            check_links.py (verifies external links, needs network)
 ```
 
 ## Status
@@ -65,4 +67,4 @@ llm-explained-handouts/
 - [x] 07 Architecture variants (draft)
 - [x] 08 Building with LLMs (draft)
 - [x] 09 Pitfalls and best practices (draft)
-- [x] 10 Further reading (draft; all 43 arXiv IDs checked against titles and 9 other links returned HTTP 200 on 2026-11-07)
+- [x] 10 Further reading (draft; all external links in the handouts, 77 distinct, were verified on 2026-11-08 with `tools/check_links.py`)

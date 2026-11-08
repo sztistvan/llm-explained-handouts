@@ -294,8 +294,8 @@ Need chat, code, reasoning, tools, flexible tasks?    -> decoder-only
 - Three families: encoder-only (understand), decoder-only (generate, dominant today), encoder-decoder (transform).
 
 ## Further reading
-- Vaswani et al., *Attention Is All You Need* (2017)
-- Jay Alammar, *The Illustrated Transformer*
-- Karpathy, *Let's build GPT: from scratch, in code* (video) and `nanoGPT`
-- Devlin et al., *BERT* (2018); Raffel et al., *T5* (2019); Radford et al., *GPT-2* (2019)
-- Shazeer, *Fast Transformer Decoding: One Write-Head is All You Need* (MQA, 2019)
+- Vaswani et al., [*Attention Is All You Need*](https://arxiv.org/abs/1706.03762) (2017)
+- Jay Alammar, [*The Illustrated Transformer*](https://jalammar.github.io/illustrated-transformer/)
+- Karpathy, [*Let's build GPT: from scratch, in code*](https://www.youtube.com/watch?v=kCc8FmEb1nY) (video) and the [`nanoGPT`](https://github.com/karpathy/nanoGPT) repo
+- Devlin et al., [*BERT*](https://arxiv.org/abs/1810.04805) (2018); Raffel et al., [*T5*](https://arxiv.org/abs/1910.10683) (2019); Radford et al., [*Language Models are Unsupervised Multitask Learners*](https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf) (GPT-2, 2019)
+- Shazeer, [*Fast Transformer Decoding: One Write-Head is All You Need*](https://arxiv.org/abs/1911.02150) (MQA, 2019)

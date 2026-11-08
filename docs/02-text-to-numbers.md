@@ -172,6 +172,6 @@ PE(pos, 2i+1) = cos(pos / 10000^(2i/d_model))
 - Everything downstream (cost, limits, quirks) is measured in tokens, not words.
 
 ## Further reading
-- Sennrich et al., *Neural Machine Translation of Rare Words with Subword Units* (BPE for natural language processing, 2015)
-- Karpathy, *Let's build the GPT Tokenizer* (video) and `minbpe` repo
-- Su et al., *RoFormer: Enhanced Transformer with Rotary Position Embedding* (RoPE, 2021)
+- Sennrich et al., [*Neural Machine Translation of Rare Words with Subword Units*](https://arxiv.org/abs/1508.07909) (BPE for natural language processing, 2015)
+- Karpathy, [*Let's build the GPT Tokenizer*](https://www.youtube.com/watch?v=zduSFxRajkE) (video) and the [`minbpe`](https://github.com/karpathy/minbpe) repo
+- Su et al., [*RoFormer: Enhanced Transformer with Rotary Position Embedding*](https://arxiv.org/abs/2104.09864) (RoPE, 2021)

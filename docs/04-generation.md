@@ -190,6 +190,6 @@ Adjust **one** of temperature or top-p at a time. Their effects overlap, and cha
 - Outputs are only approximately reproducible, and errors compound because generation is autoregressive.
 
 ## Further reading
-- Holtzman et al., *The Curious Case of Neural Text Degeneration* (top-p / nucleus sampling, 2019)
-- Hugging Face blog, *How to generate text: using different decoding methods*
-- Docs of your provider or inference engine on sampling parameters and structured outputs
+- Holtzman et al., [*The Curious Case of Neural Text Degeneration*](https://arxiv.org/abs/1904.09751) (top-p / nucleus sampling, 2019)
+- Hugging Face blog, [*How to generate text: using different decoding methods*](https://huggingface.co/blog/how-to-generate)
+- Docs on sampling parameters and structured outputs: [Anthropic](https://platform.claude.com/docs/en/home), [OpenAI](https://developers.openai.com/api/docs), or for self-hosting [vLLM](https://docs.vllm.ai/en/latest/)

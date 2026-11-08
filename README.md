@@ -43,4 +43,9 @@ node examples/js/tool_loop.js
 ```
 The tiktoken example downloads its encoding file on first use (network needed); its test skips when offline.
 
+External links in the handouts can be re-verified at any time (needs network):
+```bash
+python tools/check_links.py
+```
+
 Diagrams are written in [Mermaid](https://mermaid.js.org/). View them on GitHub, or in an editor with a Mermaid preview (VS Code: "Markdown Preview Mermaid Support").
