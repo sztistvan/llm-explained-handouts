@@ -240,6 +240,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 - **Vector database / index:** store that finds the nearest embeddings to a query vector. 08
 - **Vision encoder / projector:** the encoder that turns image patches into vectors / the small network mapping them to the LLM's `d_model`. 07
 - **Vocabulary:** the set of all tokens a model knows (about 30k to 250k+). 02
+- **word2vec:** 2013 method that learns word embeddings in a separate training step (skip-gram with negative sampling); LLMs instead learn embeddings jointly with the network. 01, 02
 - **Workflow:** a fixed sequence of steps in your code, some of which call an LLM; contrast with an *agent*. 08
 - **Retry with exponential backoff:** retrying failed calls after growing delays (plus jitter). 09
 - **Weight decay:** a small penalty on large weights, part of AdamW. 05

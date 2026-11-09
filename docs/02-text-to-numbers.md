@@ -110,6 +110,8 @@ flowchart TB
 - The rows are **learned parameters**, adjusted during training like any other weight.
 - Similarity is measured with **cosine similarity** (do two vectors point in the same direction?).
 
+For a visual build-up of embeddings, including the famous analogy examples and how they were first trained, see Jay Alammar's [*The Illustrated Word2vec*](https://jalammar.github.io/illustrated-word2vec/). Note one difference: word2vec (2013) trained its embeddings in a separate step with its own objective, while modern LLMs learn their input embeddings jointly with the rest of the network during next-token training.
+
 ```python
 import numpy as np
 
@@ -175,3 +177,4 @@ PE(pos, 2i+1) = cos(pos / 10000^(2i/d_model))
 - Sennrich et al., [*Neural Machine Translation of Rare Words with Subword Units*](https://arxiv.org/abs/1508.07909) (BPE for natural language processing, 2015)
 - Karpathy, [*Let's build the GPT Tokenizer*](https://www.youtube.com/watch?v=zduSFxRajkE) (video) and the [`minbpe`](https://github.com/karpathy/minbpe) repo
 - Su et al., [*RoFormer: Enhanced Transformer with Rotary Position Embedding*](https://arxiv.org/abs/2104.09864) (RoPE, 2021)
+- Jay Alammar, [*The Illustrated Word2vec*](https://jalammar.github.io/illustrated-word2vec/): a visual explanation of word embeddings

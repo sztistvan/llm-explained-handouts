@@ -69,6 +69,8 @@ Training teaches the matrices to produce queries and keys that match when tokens
 
 Example: in *"The animal didn't cross the street because it was tired"*, the token `it` should attend strongly to `animal`. Attention is how the model can make that link, whatever the distance.
 
+> **Visual explanation:** for a picture-by-picture walk-through of these steps, see Jay Alammar's [*The Illustrated Transformer*](https://jalammar.github.io/illustrated-transformer/). It explains the original encoder-decoder Transformer, while this handout focuses on the decoder-only variant used by most LLMs today.
+
 ### The formula
 ```text
 Attention(Q, K, V) = softmax( Q · Kᵀ / √d_k ) · V
