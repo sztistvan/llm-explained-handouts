@@ -34,7 +34,7 @@ Key papers behind Part 1: LSTM (Hochreiter and Schmidhuber), neural language mod
 ### 1. Counting (n-grams)
 Predict the next word from the previous *n-1* words using counted frequencies (the toy bigram model in handout 00 is an n-gram model).
 - **Strength:** simple, fast.
-- **Limits:** the table explodes as *n* grows, and unseen sequences get zero probability. It cannot capture long-range context or similarity ("cat" and "kitten" are unrelated symbols).
+- **Limits:** the table explodes as $n$ grows, and unseen sequences get zero probability. It cannot capture long-range context or similarity ("cat" and "kitten" are unrelated symbols).
 
 ### 2. Neural models and embeddings
 Bengio et al. (2003) predicted the next word with a neural network over *learned vectors* for words. word2vec (2013) made embeddings popular: similar words get nearby vectors. This solved the similarity problem and generalized to unseen phrases.
@@ -63,7 +63,7 @@ Vaswani et al. asked: if attention is doing the heavy lifting, drop the recurren
 | Processing | sequential | parallel across positions |
 | Long-range links | through many steps (fades) | one attention hop |
 | Training speed on GPUs | slow | fast, scales well |
-| Cost | O(n) per step, sequential | O(n²) attention in sequence length |
+| Cost | $O(n)$ per step, sequential | $O(n^2)$ attention in sequence length |
 
 Parallelism is the practical reason this architecture won: it let people train much bigger models on much more data (details in handout 03).
 

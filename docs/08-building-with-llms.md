@@ -134,7 +134,7 @@ A test in the repo shows the limitation: `"money back"` and `"refund"` share no 
 
 ### How RAG fails (and how to find out where)
 Evaluate **retrieval** and **generation** separately:
-- **Retrieval miss:** the right chunk was not retrieved (bad chunking, weak embedding, wrong `k`). Check: is the answer present in the retrieved text?
+- **Retrieval miss:** the right chunk was not retrieved (bad chunking, weak embedding, wrong $k$). Check: is the answer present in the retrieved text?
 - **Generation miss:** the chunk was present but the answer was wrong or ignored. Check: with the right chunk, does the model answer correctly?
 - **Outdated or conflicting sources:** keep dates and versions in metadata.
 - **Prompt injection through documents** (handout 09): retrieved text is untrusted input.

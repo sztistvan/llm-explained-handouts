@@ -23,11 +23,11 @@ flowchart LR
 ### A back-of-envelope speed limit
 At batch size 1, each generated token reads every weight once:
 
-```text
-max tokens/s ≈ memory bandwidth / model size in bytes
-8B model at 16-bit = ~16 GB;  GPU with 1 TB/s  ->  at most ~60 tokens/s
-```
-(Illustrative numbers. Real systems get below this bound.) Two consequences:
+$$
+\text{max tokens/s} \approx \frac{\text{memory bandwidth}}{\text{model size in bytes}}
+$$
+
+For an 8B model at 16-bit ($\approx 16$ GB) on a GPU with $1$ TB/s, that is at most $\approx 60$ tokens/s. (Illustrative numbers. Real systems get below this bound.) Two consequences:
 - A **smaller model** (fewer bytes) or **fewer bits per weight** (quantization) is directly faster.
 - Serving **many requests at once** (batching) reads the weights *once* for all of them, so total throughput rises enormously while each user's speed barely drops.
 
@@ -45,18 +45,23 @@ Latency and throughput trade off: larger batches raise throughput but make each 
 
 ## Part 2: Memory budget
 
-```text
-GPU memory = model weights + KV cache (all active requests) + activations/overhead
-```
+$$
+\text{GPU memory} = \text{model weights} + \text{KV cache (all active requests)} + \text{activations and overhead}
+$$
 
 ### Weights
-`bytes = parameters × bytes per parameter`. An 8B model: about 15 GiB at 16-bit, about 4 GiB at 4-bit.
+$$
+\text{bytes} = \text{parameters} \times \text{bytes per parameter}
+$$
+
+An 8B model: about 15 GiB at 16-bit, about 4 GiB at 4-bit.
 
 ### The KV cache grows with context and with concurrent users
-```text
-KV bytes = 2 (K and V) × layers × kv_heads × head_dim × tokens × batch × bytes per value
-```
-For a Llama-3-8B-like configuration (32 layers, 8 KV heads thanks to grouped-query attention, head dimension 128, 16-bit), computed by [`examples/python/kv_cache.py`](../examples/python/kv_cache.py):
+$$
+\text{KV bytes} = 2 \cdot n_{\text{layers}} \cdot n_{\text{kv-heads}} \cdot d_{\text{head}} \cdot n_{\text{tokens}} \cdot \text{batch} \cdot \text{bytes per value}
+$$
+
+The factor $2$ is for K and V. For a Llama-3-8B-like configuration (32 layers, 8 KV heads thanks to grouped-query attention, head dimension 128, 16-bit), computed by [`examples/python/kv_cache.py`](../examples/python/kv_cache.py):
 
 ```text
 KV cache per token:         128 KiB
@@ -79,14 +84,14 @@ The same example also proves the cache is a pure optimization: decoding 50 token
 ### Intuition
 Weights are normally stored as 16-bit numbers. **Quantization** stores them with fewer bits (8, 4 or even less) plus a **scale factor** to map integers back to approximate real values:
 
-```text
-quantize:    q = round(w / scale)        (an integer, e.g. -7..7 for 4 bit)
-dequantize:  w ≈ q × scale
-```
-Fewer bits means less memory to store and less memory traffic to read, hence faster decoding.
+$$
+q = \operatorname{round}\!\left(\frac{w}{s}\right) \qquad\qquad \hat{w} = q \cdot s \approx w
+$$
+
+Here $w$ is the original weight, $s$ the scale, $q$ an integer (for example in $[-7, 7]$ for 4 bit), and $\hat{w}$ the reconstructed approximation. Fewer bits means less memory to store and less memory traffic to read, hence faster decoding.
 
 ### The scale granularity matters
-A single scale for a whole matrix is dominated by its largest value (an **outlier**). Giving each small **group** of weights (for example 32 or 64) its own scale fits much better. Measured on a random 1024×1024 matrix with one injected outlier ([`examples/python/quantize.py`](../examples/python/quantize.py)):
+A single scale for a whole matrix is dominated by its largest value (an **outlier**). Giving each small **group** of weights (for example 32 or 64) its own scale fits much better. Measured on a random $1024 \times 1024$ matrix with one injected outlier ([`examples/python/quantize.py`](../examples/python/quantize.py)):
 
 | Setting | Mean abs. error | Bytes per parameter |
 |---|---|---|
@@ -97,7 +102,7 @@ A single scale for a whole matrix is dominated by its largest value (an **outlie
 | int4, group of 64 | 0.00183 | 0.531 |
 | int4, group of 32 | 0.00163 | 0.562 |
 
-int4 with one scale has an error close to the size of a typical weight (about 0.02): the outlier forces the scale up, so most weights round to zero. Grouping cuts the error by about 8x for only 0.03 extra bytes per parameter. Real methods are smarter, but this trade-off is the core.
+int4 with one scale has an error close to the size of a typical weight (about 0.02): the outlier forces the scale up, so most weights round to zero. Grouping cuts the error by about $8\times$ for only 0.03 extra bytes per parameter. Real methods are smarter, but this trade-off is the core.
 
 ### In practice
 - **Weight-only quantization** (e.g., GPTQ, AWQ, and the GGUF formats used by `llama.cpp`) keeps activations in 16-bit and compresses only the weights. Decode is memory-bound, so this gives most of the benefit.
@@ -105,7 +110,11 @@ int4 with one scale has an error close to the size of a typical weight (about 0.
 - The **KV cache** can be quantized too, to fit longer contexts or more users.
 - **Quality:** 8-bit is usually nearly lossless. At 4 bit, small models and tasks such as math or code can lose noticeable accuracy. **Evaluate on your own tasks** (handout 09), not just on perplexity.
 
-Rule of thumb for sizing: `memory ≈ parameters × bits / 8`, plus the KV cache and some overhead.
+Rule of thumb for sizing, plus the KV cache and some overhead:
+
+$$
+\text{memory} \approx \text{parameters} \times \frac{\text{bits}}{8}
+$$
 
 ---
 
@@ -129,7 +138,7 @@ Modern inference servers (vLLM, TensorRT-LLM, SGLang, Hugging Face TGI and other
 ## Part 5: Faster attention and speculative decoding
 
 ### FlashAttention
-Standard attention writes the full `n × n` score table to slow GPU memory and reads it back. **FlashAttention** computes attention in small tiles that stay in fast on-chip memory, never materializing the full table. The result is **exact** (not an approximation), but much faster and with memory that grows linearly rather than quadratically in the sequence length. Nearly all modern stacks use it.
+Standard attention writes the full $n \times n$ score table to slow GPU memory and reads it back. **FlashAttention** computes attention in small tiles that stay in fast on-chip memory, never materializing the full table. The result is **exact** (not an approximation), but much faster and with memory that grows linearly rather than quadratically in the sequence length. Nearly all modern stacks use it.
 
 ### Speculative decoding
 Decode is memory-bound, so verifying several tokens in one pass costs about the same as generating one. Use that:
@@ -144,11 +153,18 @@ sequenceDiagram
     T-->>D: accept the longest correct prefix,<br/>plus one token from the target
 ```
 
-```text
-for each proposed token x (drawn from draft distribution q):
-    accept with probability min(1, p(x) / q(x))        # p = target distribution
-    else: resample from normalize(max(0, p - q)) and stop
-```
+For each proposed token $x$, drawn from the draft distribution $q$ (with $p$ the target distribution):
+
+$$
+\text{accept } x \text{ with probability } \min\!\left(1, \frac{p(x)}{q(x)}\right)
+$$
+
+If it is rejected, resample from the normalized "residual" and stop:
+
+$$
+\text{residual}(y) = \frac{\max\bigl(0,\; p(y) - q(y)\bigr)}{\sum_{y'} \max\bigl(0,\; p(y') - q(y')\bigr)}
+$$
+
 The acceptance rule is built so that **the output distribution is exactly the target model's**. Quality does not change. Only speed does. [`examples/python/speculative.py`](../examples/python/speculative.py) checks this empirically over 200,000 draws:
 
 ```text
@@ -172,12 +188,15 @@ The speedup depends on how often the draft agrees with the target. It helps most
 | Control | Limited (sampling params, tools) | Full: quantization, fine-tuning, constrained decoding, data stays with you |
 | Break-even | Low or spiky traffic | Steady high volume, strict privacy or latency needs |
 
-### Estimating cost (pseudo-code)
-```text
-cost = input_tokens × price_in + output_tokens × price_out
-       (cached input tokens are often billed at a discount)
-monthly = cost_per_request × requests_per_month
-```
+### Estimating cost
+$$
+\text{cost} = n_{\text{in}} \cdot \text{price}_{\text{in}} + n_{\text{out}} \cdot \text{price}_{\text{out}}
+\qquad
+\text{monthly} = \text{cost per request} \times \text{requests per month}
+$$
+
+Here $n_{\text{in}}$ and $n_{\text{out}}$ are the input and output token counts. Cached input tokens are often billed at a discount.
+
 Output tokens are usually priced higher than input tokens. One reason is that they are produced one at a time in the slow, memory-bound decode phase, while input tokens are processed in parallel. Check your provider's current price list.
 
 ### Practical levers

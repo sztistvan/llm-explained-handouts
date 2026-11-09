@@ -24,12 +24,13 @@ Almost all of the cost (compute, data, money) is in stage 1.
 ## Part 1: Pretraining
 
 ### The objective: cross-entropy on the next token
-For every position in a training text, the model predicts a distribution over the next token. The **loss** is `-log p(correct token)`: small when the model gave the real token high probability, large when it did not. Training pushes the average loss down.
+For every position in a training text, the model predicts a distribution over the next token. The **loss** for one position is $-\log p(\text{correct token})$: small when the model gave the real token high probability, large when it did not. Training pushes the average over all $N$ positions down:
 
-```text
-loss = -(1/N) · Σ log p_model(token_t+1 | tokens_1..t)
-```
-**Perplexity** is `exp(loss)`: roughly "how many tokens the model is torn between on average". Lower is better. A model guessing uniformly over a vocabulary of V tokens has perplexity V.
+$$
+\text{loss} = -\frac{1}{N} \sum_{t=1}^{N} \log p_{\text{model}}\!\left(\text{token}_{t+1} \mid \text{token}_1, \dots, \text{token}_t\right)
+$$
+
+**Perplexity** is $e^{\text{loss}}$: roughly "how many tokens the model is torn between on average". Lower is better. A model guessing uniformly over a vocabulary of $V$ tokens has perplexity $V$.
 
 Because of the causal mask (handout 03), **one forward pass over a text produces a prediction, and so a loss, at every position at once**. This is called *teacher forcing*: the model always sees the true previous tokens, not its own guesses. It makes training massively parallel and efficient. No human labels are needed: the text is its own supervision (**self-supervised learning**).
 
@@ -42,7 +43,7 @@ repeat for many steps:
     grads   = backpropagate(loss)                 # how should each weight change?
     weights = optimizer_step(weights, grads)      # AdamW, with a learning-rate schedule
 ```
-The same loop works for a table of 49 numbers or a model with hundreds of billions of weights. Runnable miniature in [`examples/python/train_bigram.py`](../examples/python/train_bigram.py): a bigram "model" whose logits are a table, trained with exactly this loop and cross-entropy gradient (`softmax - onehot`).
+The same loop works for a table of 49 numbers or a model with hundreds of billions of weights. Runnable miniature in [`examples/python/train_bigram.py`](../examples/python/train_bigram.py): a bigram "model" whose logits are a table, trained with exactly this loop and cross-entropy gradient ($\operatorname{softmax}(z) - \text{onehot}(y)$).
 
 ```text
 loss: start 1.946 -> end 0.579  (perplexity 7.0 -> 1.78)     # 1.946 = ln(7): uniform over 7 words
@@ -72,11 +73,18 @@ Real pipelines spend huge effort on:
 Consequences you will notice: the **knowledge cutoff** (the model knows nothing after its data ends), weaker performance in languages or domains with little data, and **memorization** of frequently repeated text.
 
 ### The scale
-Training compute follows a simple rule of thumb: **FLOPs ≈ 6 · N · D** (FLOPs = floating-point operations), where N = parameters and D = training tokens (about 2 for the forward pass and 4 for the backward pass, per parameter per token).
+Training compute, measured in FLOPs (floating-point operations), follows a simple rule of thumb:
 
-```text
-GPT-3: N = 175e9, D ≈ 300e9  ->  6 · 175e9 · 300e9 ≈ 3.2e23 FLOPs   (reported ≈ 3.1e23)
-```
+$$
+\text{FLOPs} \approx 6 \cdot N \cdot D
+$$
+
+where $N$ = parameters and $D$ = training tokens (about 2 FLOPs for the forward pass and 4 for the backward pass, per parameter per token). For GPT-3 ($N = 175 \times 10^{9}$, $D \approx 300 \times 10^{9}$):
+
+$$
+6 \cdot (175 \times 10^{9}) \cdot (300 \times 10^{9}) \approx 3.2 \times 10^{23} \ \text{FLOPs} \qquad (\text{reported} \approx 3.1 \times 10^{23})
+$$
+
 Memory is the other constraint. Training holds weights, gradients **and optimizer state**, roughly **16 bytes per parameter** with Adam in mixed precision (versus 2 bytes per parameter to merely run a 16-bit model). A 70B model therefore needs on the order of a terabyte of accelerator memory just to train, which forces splitting the model and data over many GPUs:
 
 | Parallelism | Splits... |
@@ -136,10 +144,12 @@ For math, code and puzzles the answer can be **checked automatically** (does the
 ### Full fine-tuning vs LoRA
 Updating every weight of a large model needs the full training memory (about 16 bytes per parameter) and produces a full-size copy per task. **LoRA** (Low-Rank Adaptation, Hu et al., 2021) freezes the original weights and learns a small *low-rank correction* to selected matrices:
 
-```text
-W_effective = W0 + (alpha / r) · B · A
-W0: d_out x d_in (frozen)    B: d_out x r    A: r x d_in    r << d  (e.g. 8)
-```
+$$
+W_{\text{effective}} = W_0 + \frac{\alpha}{r}\, B A
+$$
+
+where $W_0 \in \mathbb{R}^{d_{\text{out}} \times d_{\text{in}}}$ is frozen, $B \in \mathbb{R}^{d_{\text{out}} \times r}$ and $A \in \mathbb{R}^{r \times d_{\text{in}}}$ are trained, $\alpha$ is a scaling constant, and the rank $r \ll d$ (for example $r = 8$).
+
 ```mermaid
 flowchart LR
     X["input x"] --> W0["W0 (frozen)<br/>d x d"]
@@ -148,9 +158,9 @@ flowchart LR
     B --> ADD
     ADD --> Y["output"]
 ```
-- `B` starts at zero, so the model begins exactly as the base model.
-- For a 4096 x 4096 matrix, r=8 trains 65,536 values instead of 16.8M (**0.39%**).
-- After training, `B·A` can be **merged** into `W0`, so there is no extra latency at serving time. Or you can keep adapters separate and swap them per task or per customer.
+- $B$ starts at zero, so the model begins exactly as the base model.
+- For a $4096 \times 4096$ matrix, $r = 8$ trains 65,536 values instead of 16.8M (**0.39%**).
+- After training, $BA$ can be **merged** into $W_0$, so there is no extra latency at serving time. Or you can keep adapters separate and swap them per task or per customer.
 - **QLoRA** (quantized LoRA) additionally stores the frozen base weights in 4-bit precision, so large models can be tuned on a single GPU.
 
 Runnable in [`examples/python/lora.py`](../examples/python/lora.py); tests check the identical-at-start and exact-merge properties.
@@ -191,7 +201,7 @@ The practical lesson for developers: **public leaderboards help you shortlist, b
 - **Training on model outputs without care.** Repeatedly training on synthetic data can reduce diversity and amplify errors.
 
 ## Summary
-- Pretraining = next-token cross-entropy over trillions of tokens, one forward pass gives a loss at every position. FLOPs ≈ 6·N·D.
+- Pretraining = next-token cross-entropy over trillions of tokens, one forward pass gives a loss at every position. $\text{FLOPs} \approx 6 N D$.
 - Post-training (SFT, RLHF/DPO, reinforcement learning on verifiable tasks) shapes behavior, not much new knowledge.
 - LoRA trains tiny low-rank adapters on a frozen model: cheap, mergeable, swappable.
 - Fine-tune for style and format, retrieve for knowledge.

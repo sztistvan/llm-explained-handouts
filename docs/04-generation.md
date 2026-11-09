@@ -22,10 +22,11 @@ flowchart LR
 ### Intuition
 Logits are unnormalized "votes": they can be negative, and they don't sum to anything meaningful. **Softmax** converts them into probabilities (all positive, sum to 1) while keeping the order: a higher logit always means a higher probability.
 
-```text
-softmax(z_i) = exp(z_i) / Σ_j exp(z_j)
-```
-Because of the `exp`, differences between logits are amplified: a gap of 1 means the top token is about 2.7x more likely, a gap of 3 about 20x.
+$$
+\operatorname{softmax}(z)_i = \frac{e^{z_i}}{\sum_{j} e^{z_j}}
+$$
+
+where $z_i$ is the logit of token $i$. Because of the exponential, differences between logits are amplified: a gap of $1$ means the top token is about $e^{1} \approx 2.7$ times more likely, a gap of $3$ about $e^{3} \approx 20$ times.
 
 Example with a toy 4-token vocabulary:
 
@@ -46,7 +47,7 @@ Always take the highest-probability token (`argmax`).
 - **Con:** can get stuck in repetitive loops and bland text. The locally best token is not always on the best overall path.
 
 ### Beam search
-Keep the best `k` partial sequences (**beams**) at each step, scored by total log-probability, and extend each. At the end, return the best sequence.
+Keep the best $k$ partial sequences (**beams**) at each step, scored by total log-probability, and extend each. At the end, return the best sequence.
 
 ```mermaid
 flowchart TB
@@ -60,7 +61,7 @@ flowchart TB
 Greedy takes `A` first (0.6 > 0.4) and ends at probability 0.30. Beam search with width 2 keeps `B` alive too and finds `B z` at 0.36, the better full sequence. Runnable in [`examples/python/sampling.py`](../examples/python/sampling.py).
 
 - **Pro:** finds higher-probability sequences. Good for tasks with a "right" output, such as translation and summarization.
-- **Con:** costs `k` times more, and tends to produce generic, repetitive text for open-ended generation. Chat assistants typically use sampling instead.
+- **Con:** costs $k$ times more, and tends to produce generic, repetitive text for open-ended generation. Chat assistants typically use sampling instead.
 
 ### Sampling
 Draw the next token randomly **according to the probabilities**: a token with 68% is picked 68% of the time. This gives varied, more natural text, and it is the default for chat models. It also means the same prompt can produce different answers.
@@ -70,25 +71,25 @@ Draw the next token randomly **according to the probabilities**: a token with 68
 ## Part 3: Controlling sampling
 
 ### Temperature
-Divide the logits by `T` before softmax:
+Divide the logits by the temperature $T$ before softmax:
 
-```text
-probs = softmax(logits / T)
-```
+$$
+p_i = \frac{e^{z_i / T}}{\sum_{j} e^{z_j / T}}
+$$
 
 | Setting | Effect | Example (probabilities of the 4 tokens above) |
 |---|---|---|
-| `T → 0` | Sharper, approaches greedy | `T=0.2`: 0.993 / 0.007 / 0.000 / 0.000 |
-| `T = 1` | Model's own distribution | 0.681 / 0.251 / 0.056 / 0.012 |
-| `T > 1` | Flatter, more random, more chance of odd tokens | `T=2`: 0.493 / 0.299 / 0.141 / 0.067 |
+| $T \to 0$ | Sharper, approaches greedy | $T = 0.2$: 0.993 / 0.007 / 0.000 / 0.000 |
+| $T = 1$ | Model's own distribution | 0.681 / 0.251 / 0.056 / 0.012 |
+| $T > 1$ | Flatter, more random, more chance of odd tokens | $T = 2$: 0.493 / 0.299 / 0.141 / 0.067 |
 
-`T = 0` itself would divide by zero, so implementations treat it as "use argmax".
+$T = 0$ itself would divide by zero, so implementations treat it as "use argmax".
 
 ### Top-k
-Keep only the `k` most probable tokens, renormalize, and sample from those. Simple, but `k` is fixed: sometimes the model is certain (1 good token) and sometimes it is unsure (hundreds of reasonable ones).
+Keep only the $k$ most probable tokens, renormalize, and sample from those. Simple, but $k$ is fixed: sometimes the model is certain (1 good token) and sometimes it is unsure (hundreds of reasonable ones).
 
 ### Top-p (nucleus sampling)
-Keep the **smallest set of top tokens whose probabilities add up to at least `p`** (for example 0.9), then renormalize. The set size adapts: tiny when the model is confident, large when it is not.
+Keep the **smallest set of top tokens whose probabilities add up to at least $p$** (for example $0.9$), then renormalize. The set size adapts: tiny when the model is confident, large when it is not.
 
 ```text
 function top_p(probs, p):
@@ -136,7 +137,7 @@ Parameter names, ranges and availability vary by provider and model, and some mo
 
 ## Part 4: Structured output (constrained decoding)
 
-Asking nicely ("reply in JSON") works most of the time, but not always. **Constrained decoding** guarantees valid structure by editing the logits at each step: tokens that would break the grammar or schema get their score set to -∞, so they can never be sampled.
+Asking nicely ("reply in JSON") works most of the time, but not always. **Constrained decoding** guarantees valid structure by editing the logits at each step: tokens that would break the grammar or schema get their score set to $-\infty$, so they can never be sampled.
 
 ```text
 function constrained_step(logits, grammar_state):
@@ -159,7 +160,7 @@ This is what "JSON mode", "structured outputs" or "grammar-based sampling" featu
 Each token is conditioned on the previous ones, including the model's own earlier mistakes. There is no built-in "backspace". An early wrong claim becomes context that later tokens stay consistent with. This is one reason why "think step by step" and reasoning models can help: they produce intermediate text that the final answer then builds on.
 
 ### Determinism is weaker than you think
-`T = 0` or a fixed seed *reduces* variation, but identical outputs are not guaranteed. Floating-point math on GPUs can give tiny differences depending on batching and hardware, and a near-tie between two tokens can then flip. Design tests and pipelines to tolerate variation (see handout 09).
+$T = 0$ or a fixed seed *reduces* variation, but identical outputs are not guaranteed. Floating-point math on GPUs can give tiny differences depending on batching and hardware, and a near-tie between two tokens can then flip. Design tests and pipelines to tolerate variation (see handout 09).
 
 ### Logprobs are useful signals
 Token probabilities can serve as a rough confidence signal, for instance in classification (compare the probabilities of the label tokens), or to flag low-confidence spans. They are not calibrated truth probabilities.

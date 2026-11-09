@@ -142,10 +142,11 @@ ok after waits [0.5, 1.0, 2.0]        # doubling delays; jitter added in real us
 ```
 
 ### Cost control
-```text
-cost = (fresh_input + cached_input × (1 - discount)) × price_in + output × price_out
-```
-With illustrative prices ($3 per million input tokens, $15 per million output tokens), a request with 10,000 input and 500 output tokens costs $0.0375. If 8,000 of the input tokens come from a cached prefix at a 90% discount, it costs $0.0159 (per 100,000 requests: $3,750 vs $1,590). Levers (handout 06): shorter prompts, stable prefixes for caching, smaller models for easy tasks, output caps, batch endpoints for offline work, and **budgets and alerts** per feature. Remember hidden tokens (reasoning, tool definitions, retries).
+$$
+\text{cost} = \bigl(n_{\text{fresh}} + n_{\text{cached}} \cdot (1 - \text{discount})\bigr) \cdot \text{price}_{\text{in}} + n_{\text{out}} \cdot \text{price}_{\text{out}}
+$$
+
+where $n_{\text{fresh}}$ and $n_{\text{cached}}$ are the uncached and cached input tokens and $n_{\text{out}}$ the output tokens. With illustrative prices (\$3 per million input tokens, \$15 per million output tokens), a request with 10,000 input and 500 output tokens costs \$0.0375. If 8,000 of the input tokens come from a cached prefix at a 90% discount, it costs \$0.0159 (per 100,000 requests: \$3,750 vs \$1,590). Levers (handout 06): shorter prompts, stable prefixes for caching, smaller models for easy tasks, output caps, batch endpoints for offline work, and **budgets and alerts** per feature. Remember hidden tokens (reasoning, tool definitions, retries).
 
 ---
 

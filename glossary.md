@@ -54,14 +54,18 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 ## Math notation (handout 03)
 | Symbol | Meaning |
 |---|---|
-| `n` | number of tokens in the sequence |
-| `d_model` | length of the token vectors through the model (embedding size, hidden size) |
-| `h` | number of attention heads |
-| `d_k`, `d_v` | length of key/query and value vectors per head, `d_model / h` |
-| `d_ff` | width of the MLP hidden layer, about `4 × d_model` |
-| `N`, `D` | parameters, training tokens (compute ≈ `6·N·D` FLOPs, handout 05) |
-| `W_Q`, `W_K`, `W_V` | learned matrices that produce queries, keys, values |
-| `T` | temperature (handout 04) |
+| $n$ | number of tokens in the sequence |
+| $d_{\text{model}}$ | length of the token vectors through the model (embedding size, hidden size) |
+| $h$ | number of attention heads |
+| $d_k$, $d_v$ | length of key/query and value vectors per head, $d_{\text{model}} / h$ |
+| $d_{\text{ff}}$ | width of the MLP hidden layer, about $4 \times d_{\text{model}}$ |
+| $N$, $D$ | parameters, training tokens (compute $\approx 6ND$ FLOPs, handout 05) |
+| $W_Q$, $W_K$, $W_V$ | learned matrices that produce queries, keys, values |
+| $T$ | temperature (handout 04) |
+| $z_i$ | logit (raw score) of token $i$ (handout 04) |
+| $p$, $k$ | top-$p$ cumulative probability threshold, top-$k$ number of tokens kept (handout 04) |
+| $r$, $\alpha$ | LoRA rank and scaling constant (handout 05) |
+| $O(n^2)$ | cost growing with the square of the sequence length |
 
 ---
 
@@ -82,12 +86,12 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 - **Base model:** a pretrained model that only continues text; not yet an assistant. 05
 - **Batch size:** number of sequences (or tokens) processed per training step. 05
 - **Batching (static / continuous):** serving many requests per model pass. Static waits for the whole batch; continuous swaps finished requests for waiting ones after every step. 06
-- **Beam search:** decoding that keeps the best *k* partial sequences instead of one. 04
+- **Beam search:** decoding that keeps the best $k$ partial sequences instead of one. 04
 - **Benchmark:** a standard test set with automatic scoring (MMLU, HumanEval, ...). 05
 - **BPE (Byte-Pair Encoding):** builds a sub-word vocabulary by repeatedly merging the most frequent adjacent pair. 02
 
 ## C
-- **Causal mask:** blocks attention to later positions so token *i* only sees tokens ≤ *i*. 03
+- **Causal mask:** blocks attention to later positions so token $i$ only sees tokens at positions $\le i$. 03
 - **Chinchilla:** 2022 result: scale parameters and training tokens together (about 20 tokens per parameter). 01, 05
 - **Chunking:** splitting documents into overlapping passages for embedding and retrieval. 08
 - **Compute-bound / memory-bandwidth-bound:** limited by arithmetic speed (prefill) / by how fast data can be read from memory (decode). 06
@@ -97,7 +101,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 - **Contamination:** benchmark questions leaking into training data, inflating scores. 05
 - **Cosine similarity:** how closely two vectors point in the same direction (−1 to 1). 02
 - **Cross-attention:** attention where queries come from the decoder and keys/values from the encoder. 03
-- **Cross-entropy:** the loss `-log p(correct token)`, averaged over positions. 05
+- **Cross-entropy:** the loss $-\log p(\text{correct token})$, averaged over positions. 05
 
 ## D
 - **Decode (phase):** generating tokens one at a time after the prompt; memory-bandwidth-bound. 03
@@ -119,8 +123,8 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 ## F
 - **Few-shot prompting:** giving a few input-output examples in the prompt (in-context learning). 08
 - **Fine-tuning:** further training of a pretrained model on a narrower dataset. 05
-- **FlashAttention:** exact attention computed in on-chip tiles, avoiding the full `n × n` table in slow memory. 06
-- **FLOPs:** count of arithmetic operations; training ≈ `6·N·D`. 05
+- **FlashAttention:** exact attention computed in on-chip tiles, avoiding the full $n \times n$ table in slow memory. 06
+- **FLOPs:** count of arithmetic operations; training $\approx 6ND$. 05
 
 ## G
 - **Function calling / tool use:** the model emits a structured request naming a tool and arguments; your code validates and runs it. 08
@@ -136,7 +140,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 - **Hybrid search:** combining vector (semantic) search with keyword search. 08
 - **Hybrid model:** architecture interleaving attention layers with SSM (and sometimes MoE) layers. 07
 - **Guardrails:** checks and limits around the model (input/output validation, moderation, tool permissions). 09
-- **Hidden state:** a token's vector inside the network after at least one block (size `d_model`). 03
+- **Hidden state:** a token's vector inside the network after at least one block (size $d_{\text{model}}$). 03
 
 ## I
 - **Indirect prompt injection:** malicious instructions hidden in content the model processes (web page, email, document, tool result). 09
@@ -157,7 +161,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 - **Learning rate:** step size of the weight updates; usually warmed up then decayed. 05
 - **Logits:** raw, unnormalized scores, one per vocabulary token. 04
 - **Logprobs:** log-probabilities of tokens, returned by some APIs. 04
-- **LoRA:** fine-tuning via small low-rank matrices `B·A` added to frozen weights. 05
+- **LoRA:** fine-tuning via small low-rank matrices $BA$ added to frozen weights. 05
 - **Loss:** a number measuring how wrong the model is; training minimizes it. 05
 
 ## M
@@ -182,7 +186,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 ## P
 - **PagedAttention:** storing the KV cache in small fixed-size blocks to avoid fragmentation and fit more requests (vLLM). 06
 - **Parameters (weights):** the learned numbers of the model. 00
-- **Perplexity:** `exp(loss)`; roughly how many tokens the model is torn between. 05
+- **Perplexity:** $e^{\text{loss}}$; roughly how many tokens the model is torn between. 05
 - **Positional encoding:** information telling the model each token's position (sinusoidal, learned, RoPE, ALiBi). 02
 - **Prompt injection:** text in the data acting as instructions to the model; defend with permissions, not wording. 09
 - **Position interpolation:** scaling positions down so a longer text fits the trained range (RoPE context extension); NTK-aware scaling and YaRN are related methods. 07
@@ -217,8 +221,8 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 - **Self-supervised learning:** learning from labels derived from the data itself (the next token). 05
 - **Seq2seq:** encoder-decoder RNN setup for translation-like tasks. 01
 - **SFT:** supervised fine-tuning. 05
-- **Sliding-window attention:** each token attends only to the last *w* tokens; reach grows with depth. 07
-- **Softmax:** turns scores into positive probabilities summing to 1. 03, 04
+- **Sliding-window attention:** each token attends only to the last $w$ tokens; reach grows with depth. 07
+- **Softmax:** turns scores into positive probabilities summing to 1: $\operatorname{softmax}(z)_i = e^{z_i} / \sum_j e^{z_j}$. 03, 04
 - **Special tokens:** vocabulary entries marking structure (end of text, roles, tool calls). 02
 - **Speculative decoding:** a draft model proposes several tokens and the target verifies them in one pass; output distribution is unchanged. 06
 - **State-space model (SSM):** sequence layer with a fixed-size state updated per token; recurrent for generation, convolution for training. 07
@@ -231,14 +235,14 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 - **Temperature:** divides logits before softmax; low = focused, high = random. 04
 - **Token / tokenizer:** a sub-word piece with an integer ID / the component that splits text into them. 02
 - **Throughput:** total tokens per second across all users of a server. 06
-- **Top-k / top-p:** sampling filters keeping the *k* best tokens / the smallest set with cumulative probability ≥ *p*. 04
+- **Top-k / top-p:** sampling filters keeping the $k$ best tokens / the smallest set with cumulative probability $\ge p$. 04
 - **Transformer:** architecture built from attention and MLP blocks (2017). 01, 03
 
 ## U–Z
 - **Unembedding (output projection):** final matrix turning a vector into one logit per vocabulary token. 03
 - **Value (V):** the information a token contributes when attended to. 03
 - **Vector database / index:** store that finds the nearest embeddings to a query vector. 08
-- **Vision encoder / projector:** the encoder that turns image patches into vectors / the small network mapping them to the LLM's `d_model`. 07
+- **Vision encoder / projector:** the encoder that turns image patches into vectors / the small network mapping them to the LLM's $d_{\text{model}}$. 07
 - **Vocabulary:** the set of all tokens a model knows (about 30k to 250k+). 02
 - **word2vec:** 2013 method that learns word embeddings in a separate training step (skip-gram with negative sampling); LLMs instead learn embeddings jointly with the network. 01, 02
 - **Workflow:** a fixed sequence of steps in your code, some of which call an LLM; contrast with an *agent*. 08

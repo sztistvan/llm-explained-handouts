@@ -48,4 +48,6 @@ External links in the handouts can be re-verified at any time (needs network):
 python tools/check_links.py
 ```
 
+Equations are written in LaTeX (`$...$` and `$$...$$`). They render on GitHub and in the VS Code Markdown preview. Other viewers may show the raw LaTeX.
+
 Diagrams are written in [Mermaid](https://mermaid.js.org/). View them on GitHub, or in an editor with a Mermaid preview (VS Code: "Markdown Preview Mermaid Support").

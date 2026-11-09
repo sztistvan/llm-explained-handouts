@@ -108,7 +108,13 @@ flowchart TB
 ### How it works
 - The embedding table is a big matrix: one row per vocabulary token. Embedding = **look up the row**.
 - The rows are **learned parameters**, adjusted during training like any other weight.
-- Similarity is measured with **cosine similarity** (do two vectors point in the same direction?).
+- Similarity is measured with **cosine similarity** (do two vectors point in the same direction?):
+
+$$
+\cos(a, b) = \frac{a \cdot b}{\lVert a \rVert \, \lVert b \rVert}
+$$
+
+It is $1$ for identical directions, $0$ for unrelated (perpendicular) vectors, and $-1$ for opposite ones.
 
 For a visual build-up of embeddings, including the famous analogy examples and how they were first trained, see Jay Alammar's [*The Illustrated Word2vec*](https://jalammar.github.io/illustrated-word2vec/). Note one difference: word2vec (2013) trained its embeddings in a separate step with its own objective, while modern LLMs learn their input embeddings jointly with the rest of the network during next-token training.
 
@@ -153,10 +159,14 @@ Attention (handout 03) compares tokens with each other, but by itself it has **n
 Why it matters beyond theory: the positional scheme strongly affects how well a model handles **long contexts** and whether context can be extended after training (handout 07).
 
 Sinusoidal formula (for reference; the idea is that each dimension oscillates at a different frequency, like the digits of a clock):
-```text
-PE(pos, 2i)   = sin(pos / 10000^(2i/d_model))
-PE(pos, 2i+1) = cos(pos / 10000^(2i/d_model))
-```
+$$
+\begin{aligned}
+PE_{(\text{pos},\,2i)}   &= \sin\!\left(\frac{\text{pos}}{10000^{2i/d_{\text{model}}}}\right) \\
+PE_{(\text{pos},\,2i+1)} &= \cos\!\left(\frac{\text{pos}}{10000^{2i/d_{\text{model}}}}\right)
+\end{aligned}
+$$
+
+Here $\text{pos}$ is the token's position and $i$ indexes pairs of dimensions: low $i$ gives fast oscillations, high $i$ slow ones.
 
 ---
 

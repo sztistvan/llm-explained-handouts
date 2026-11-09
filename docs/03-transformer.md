@@ -21,7 +21,7 @@ flowchart TB
     NORM --> OUT["Output projection (unembedding)<br/>vector to one score per vocab token"]
     OUT --> LOG["Logits"]
 ```
-Every block takes a `(sequence length × d_model)` matrix and returns one of the **same shape**. That is why blocks can be stacked as deep as you like.
+Every block takes an $n \times d_{\text{model}}$ matrix (one row per token) and returns one of the **same shape**. That is why blocks can be stacked as deep as you like.
 
 > **Try it:** [LLM Visualization](https://bbycroft.net/llm) is an interactive 3D walkthrough of a GPT model, from embedding through attention and the MLP to softmax. It shows the same structure as the diagrams here, first on a tiny model and then at GPT-2 and GPT-3 scale. Its terms differ slightly: it says "feed forward" and "projection" where this handout says MLP and output projection, and it uses LayerNorm (as GPT-2 does) where many newer models use RMSNorm.
 
@@ -42,7 +42,7 @@ flowchart TB
 | Part | Job | Analogy |
 |---|---|---|
 | **Attention** | Mix information *between* tokens | A meeting where each token asks questions and listens to the relevant others |
-| **MLP** | Transform each token's vector *independently* (expand to ~4x width, nonlinearity, shrink back). Much of the model's stored "knowledge" is believed to live here | Each token thinking on its own after the meeting |
+| **MLP** | Transform each token's vector *independently* (expand to about $4\times$ width, nonlinearity, shrink back). Much of the model's stored "knowledge" is believed to live here | Each token thinking on its own after the meeting |
 | **Residual connection** (`+`) | Add the block's output to its input instead of replacing it | A shared notebook that each block annotates; also keeps training stable in deep stacks |
 | **Normalization** (LayerNorm / RMSNorm, root-mean-square norm) | Rescale vectors so numbers stay in a healthy range | Keeping volume levels sane between stages |
 
@@ -57,40 +57,46 @@ Each token produces three vectors from its current vector (by multiplying with l
 - **Key (K):** "what do I contain / advertise?"
 - **Value (V):** "what information do I hand over if you pick me?"
 
-**What is trained and what is computed:** the three matrices `W_Q`, `W_K`, `W_V` are learned weights. They are fixed after training and are the same for every token (each layer and head has its own set). The vectors **Q, K, V are not stored**. They are computed on the fly for the current text by multiplying each token's vector `x` with those matrices:
+**What is trained and what is computed:** the three matrices $W_Q$, $W_K$, $W_V$ are learned weights. They are fixed after training and are the same for every token (each layer and head has its own set). The vectors **Q, K, V are not stored**. They are computed on the fly for the current text by multiplying each token's vector $x$ with those matrices:
 
-```text
-q_i = x_i @ W_Q      k_i = x_i @ W_K      v_i = x_i @ W_V      (for every token i)
-```
+$$
+q_i = x_i W_Q, \qquad k_i = x_i W_K, \qquad v_i = x_i W_V \qquad \text{(for every token } i\text{)}
+$$
 
 Training teaches the matrices to produce queries and keys that match when tokens are relevant to each other.
 
-**What "compares its query to every key" means:** take the token that is currently "looking", say `it`. Its query vector `q_it` is compared (by dot product) with the key vector `k_j` of **every token j in the visible context**, including itself. That gives one score per token: a high score means "token j is relevant to me". Softmax turns the scores into weights that sum to 1. The token then takes a **weighted average of the value vectors** `v_j`, so relevant tokens contribute more. This happens for every token at the same time (that is the `n × n` score table below: row = the looking token, column = the token it looks at).
+**What "compares its query to every key" means:** take the token that is currently "looking", say `it`. Its query vector $q_{\text{it}}$ is compared (by dot product) with the key vector $k_j$ of **every token $j$ in the visible context**, including itself. That gives one score per token: a high score means "token $j$ is relevant to me". Softmax turns the scores into weights that sum to 1. The token then takes a **weighted average of the value vectors** $v_j$, so relevant tokens contribute more. This happens for every token at the same time (that is the $n \times n$ score table below: row = the looking token, column = the token it looks at).
 
 Example: in *"The animal didn't cross the street because it was tired"*, the token `it` should attend strongly to `animal`. Attention is how the model can make that link, whatever the distance.
 
 > **Visual explanation:** for a picture-by-picture walk-through of these steps, see Jay Alammar's [*The Illustrated Transformer*](https://jalammar.github.io/illustrated-transformer/). It explains the original encoder-decoder Transformer, while this handout focuses on the decoder-only variant used by most LLMs today.
 
 ### The formula
-```text
-Attention(Q, K, V) = softmax( Q · Kᵀ / √d_k ) · V
-```
-**Notation** (from the original paper, now standard). `d` stands for *dimension*, the length of a vector. The subscript says which vector, and `n` and `h` are counts:
+$$
+\text{Attention}(Q, K, V) = \operatorname{softmax}\!\left(\frac{Q K^{\top}}{\sqrt{d_k}}\right) V
+$$
+**Notation** (from the original paper, now standard). $d$ stands for *dimension*, the length of a vector. The subscript says which vector, and $n$ and $h$ are counts:
 
 | Symbol | Meaning | Example (original paper's base model) |
 |---|---|---|
-| `n` | number of tokens in the sequence | varies |
-| `d_model` | length of the token vectors flowing through the whole model. This **is the embedding size** (also called *hidden size* or *model dimension*) | 512 |
-| `h` | number of attention heads | 8 |
-| `d_k` | length of the query and key vectors (must match, because `q · k` needs equal lengths) | 64 |
-| `d_v` | length of the value vectors (can differ from `d_k`, usually equal) | 64 |
-| `d_ff` | width of the MLP's hidden layer | 2048 |
+| $n$ | number of tokens in the sequence | varies |
+| $d_{\text{model}}$ | length of the token vectors flowing through the whole model. This **is the embedding size** (also called *hidden size* or *model dimension*) | 512 |
+| $h$ | number of attention heads | 8 |
+| $d_k$ | length of the query and key vectors (must match, because $q \cdot k$ needs equal lengths) | 64 |
+| $d_v$ | length of the value vectors (can differ from $d_k$, usually equal) | 64 |
+| $d_{\text{ff}}$ | width of the MLP's hidden layer | 2048 |
 
-With multi-head attention, `d_model` is split across the heads, so `d_k = d_v = d_model / h` (here 512 / 8 = 64). That is why the formula divides by `√d_k`, the square root of the **per-head** size, not of the full model width. In `attention.py` the same quantity is called `d_head`.
+With multi-head attention, $d_{\text{model}}$ is split across the heads:
 
-How the sizes relate to the embedding size: `d_model` is the length of the vector produced by the embedding lookup (handout 02), and every block takes and returns vectors of that same length. `d_k` and `d_v` are derived from it (`d_model / h`). `d_ff` is usually about `4 × d_model`: the MLP expands the vector to `d_ff` and shrinks it back to `d_model`. After the first block these vectors are no longer "just the token's embedding", since attention and MLP layers have enriched them, so they are better called **hidden states**. The size stays `d_model`.
+$$
+d_k = d_v = \frac{d_{\text{model}}}{h} \qquad \text{(here } 512 / 8 = 64\text{)}
+$$
 
-**Vectors or matrices?** Both views are the same thing. Each token has its own `q`, `k` and `v` **vector** (length `d_k`). In the formula and diagram, **Q, K, V are matrices**: the vectors of all `n` tokens stacked as rows, shape `n × d_k`. Stacking lets one matrix multiplication compare every token with every other token at once. The learned weights `W_Q`, `W_K`, `W_V` are also matrices (`d_model × d_k`).
+That is why the formula divides by $\sqrt{d_k}$, the square root of the **per-head** size, not of the full model width. In `attention.py` the same quantity is called `d_head`.
+
+How the sizes relate to the embedding size: $d_{\text{model}}$ is the length of the vector produced by the embedding lookup (handout 02), and every block takes and returns vectors of that same length. $d_k$ and $d_v$ are derived from it ($d_{\text{model}} / h$). $d_{\text{ff}}$ is usually about $4 \times d_{\text{model}}$: the MLP expands the vector to $d_{\text{ff}}$ and shrinks it back to $d_{\text{model}}$. After the first block these vectors are no longer "just the token's embedding", since attention and MLP layers have enriched them, so they are better called **hidden states**. The size stays $d_{\text{model}}$.
+
+**Vectors or matrices?** Both views are the same thing. Each token has its own $q$, $k$ and $v$ **vector** (length $d_k$). In the formula and diagram, **$Q$, $K$, $V$ are matrices**: the vectors of all $n$ tokens stacked as rows, shape $n \times d_k$. Stacking lets one matrix multiplication compare every token with every other token at once. The learned weights $W_Q$, $W_K$, $W_V$ are also matrices ($d_{\text{model}} \times d_k$).
 
 Step by step:
 
@@ -105,38 +111,39 @@ flowchart LR
     V["V (n × d_k)"] --> O
 ```
 
-1. **`Q · Kᵀ`**: dot product of every query with every key gives an `n × n` table of match scores.
-2. **`/ √d_k`**: scale down by the square root of the key dimension. Why? A dot product of two `d_k`-dimensional vectors with unit-variance entries has variance about `d_k`, so scores grow with dimension. Large scores push softmax into a near one-hot regime where gradients almost vanish and training stalls. Dividing by `√d_k` keeps scores at a stable scale.
-3. **Mask** (decoders): set scores for *future* positions to -∞ so token *i* can only see tokens ≤ *i*. This is what makes next-token training valid and generation possible (see Part 3).
-4. **`softmax`**: turn each row of scores into weights that are positive and sum to 1.
-5. **`· V`**: use the weights to average the value vectors.
+1. **Scores, $QK^{\top}$:** the dot product of every query with every key gives an $n \times n$ table of match scores.
+2. **Scaling, $\div\sqrt{d_k}$:** scale down by the square root of the key dimension. Why? A dot product of two $d_k$-dimensional vectors with unit-variance entries has variance about $d_k$, so scores grow with dimension. Large scores push softmax into a near one-hot regime where gradients almost vanish and training stalls. Dividing by $\sqrt{d_k}$ keeps scores at a stable scale.
+3. **Mask** (decoders): set scores for *future* positions to $-\infty$ so token $i$ can only see tokens at positions $\le i$. This is what makes next-token training valid and generation possible (see Part 3).
+4. **Softmax:** turn each row of scores into weights that are positive and sum to 1.
+5. **Weighted values, $\cdot V$:** use the weights to average the value vectors.
 
 ### Why "query", "key" and "value"? What if you swap them?
-The names are an **analogy to a lookup** (ask a question, match it against labels, get the content). Nothing inside `W_Q` or `W_K` is intrinsically "query-like". A matrix gets its role only from **where its output is used in the formula**:
+The names are an **analogy to a lookup** (ask a question, match it against labels, get the content). Nothing inside $W_Q$ or $W_K$ is intrinsically "query-like". A matrix gets its role only from **where its output is used in the formula**:
 
-- `Q` is the first factor of `Q · Kᵀ`: its rows are the **asking** side of the score table.
-- `K` is the second factor: its rows are what gets **matched against**, and softmax normalizes the weights over this side.
-- `V` is what is actually **averaged and returned**.
+- $Q$ is the first factor of $QK^{\top}$: its rows are the **asking** side of the score table.
+- $K$ is the second factor: its rows are what gets **matched against**, and softmax normalizes the weights over this side.
+- $V$ is what is actually **averaged and returned**.
 
 Training then shapes each matrix so that it does its job well. The roles are learned, not built in.
 
 **What if you swap Q and K?** It depends on what exactly you swap:
 - **Rename only, then train from scratch:** nothing changes. The matrices start random, so "the matrix in the first slot" simply learns to be the asking side. The names are labels.
-- **Swap them in an already trained model** (use `W_K` where `W_Q` was): the score table becomes its **transpose**, and softmax now normalizes along the other direction. That is a different function, and the trained model breaks.
+- **Swap them in an already trained model** (use $W_K$ where $W_Q$ was): the score table becomes its **transpose**, and softmax now normalizes along the other direction. That is a different function, and the trained model breaks.
 
-A way to see the mechanism: the score between token *i* and token *j* is
+A way to see the mechanism: the score between token $i$ and token $j$ is
 
-```text
-score_ij = (x_i · W_Q) · (x_j · W_K) = x_i · (W_Q · W_Kᵀ) · x_jᵀ
-```
-so the model really learns **one matrix `M = W_Q · W_Kᵀ`** that says "how much does token *i* care about token *j*". Swapping Q and K replaces `M` by `Mᵀ`, which reverses the relation to "how much does *j* care about *i*".
+$$
+\text{score}_{ij} = (x_i W_Q)(x_j W_K)^{\top} = x_i \,\bigl(W_Q W_K^{\top}\bigr)\, x_j^{\top}
+$$
 
-**Why two matrices, not one?** If `W_Q = W_K`, then `M = W·Wᵀ` is symmetric: *i* would always care about *j* exactly as much as *j* cares about *i*. Language needs asymmetry: `it` looks for `animal`, but `animal` does not look for `it`. Two separate matrices allow an asymmetric `M`. Splitting it into two thin matrices (`d_model × d_k`) is also cheaper than one full `d_model × d_model` matrix, and it lets each token's key be computed once and reused (see the KV cache below).
+so the model really learns **one matrix $M = W_Q W_K^{\top}$** that says "how much does token $i$ care about token $j$". Swapping Q and K replaces $M$ by $M^{\top}$, which reverses the relation to "how much does $j$ care about $i$".
 
-**Why a separate `V`?** What makes a token *findable* (its key) is not the same as what it *contributes* once found (its value).
+**Why two matrices, not one?** If $W_Q = W_K = W$, then $M = W W^{\top}$ is symmetric: $i$ would always care about $j$ exactly as much as $j$ cares about $i$. Language needs asymmetry: `it` looks for `animal`, but `animal` does not look for `it`. Two separate matrices allow an asymmetric $M$. Splitting it into two thin matrices ($d_{\text{model}} \times d_k$) is also cheaper than one full $d_{\text{model}} \times d_{\text{model}}$ matrix, and it lets each token's key be computed once and reused (see the KV cache below).
+
+**Why a separate $V$?** What makes a token *findable* (its key) is not the same as what it *contributes* once found (its value).
 
 ### The causal mask
-In a decoder, the "every token j in the visible context" above is restricted by the mask: token *i* may only compare its query with the keys of tokens at positions ≤ *i* (itself and earlier ones). The scores for later positions are blocked before softmax, so they get weight 0 and contribute nothing.
+In a decoder, the "every token $j$ in the visible context" above is restricted by the mask: token $i$ may only compare its query with the keys of tokens at positions $j \le i$ (itself and earlier ones). The scores for later positions are blocked before softmax, so they get weight 0 and contribute nothing.
 ```text
         sees→  The  cat  sat  down
 The            [ ✓    ✗    ✗    ✗ ]
@@ -183,7 +190,7 @@ print(np.round(weights, 2))   # lower-triangular; each row sums to 1
 With random, untrained vectors the weights concentrate on each token itself. In a trained model they carry real structure.
 
 ### Cost: why context length is expensive
-The score table is `n × n`, so attention compute and memory grow **quadratically** with sequence length. Doubling the context roughly quadruples attention work. This is the reason long context is a major engineering topic (handouts 06 and 07).
+The score table is $n \times n$, so attention compute and memory grow **quadratically**, $O(n^2)$, with sequence length. Doubling the context roughly quadruples attention work. This is the reason long context is a major engineering topic (handouts 06 and 07).
 
 ---
 
@@ -196,14 +203,14 @@ When generating token by token, the keys and values of *earlier* tokens never ch
 without cache: step t recomputes K,V for all t tokens   -> wasteful
 with cache:    step t computes K,V for 1 new token, reads the rest from memory
 ```
-**But K and V are computed for every token. How can they be cached?** "Computed for every token" means each token's `k` and `v` are computed **once**, when that token is first processed, and then **reused** instead of recomputed. That is safe for two reasons:
+**But K and V are computed for every token. How can they be cached?** "Computed for every token" means each token's $k$ and $v$ are computed **once**, when that token is first processed, and then **reused** instead of recomputed. That is safe for two reasons:
 
-1. `k_i = x_i · W_K` and `v_i = x_i · W_V` depend only on token *i*'s own vector `x_i` (at that layer) and on fixed weights.
-2. Thanks to the causal mask, `x_i` at every layer depends only on tokens up to *i*, never on later ones. Layer 1 sees only tokens ≤ *i*, so its outputs for position *i* do too, and by induction so does every later layer. Appending new tokens therefore never changes `x_i`, `k_i` or `v_i`.
+1. $k_i = x_i W_K$ and $v_i = x_i W_V$ depend only on token $i$'s own vector $x_i$ (at that layer) and on fixed weights.
+2. Thanks to the causal mask, $x_i$ at every layer depends only on tokens up to $i$, never on later ones. Layer 1 sees only tokens at positions $\le i$, so its outputs for position $i$ do too, and by induction so does every later layer. Appending new tokens therefore never changes $x_i$, $k_i$ or $v_i$.
 
-**Q is not cached because it is never needed again.** `q_i` is used only once, to compute token *i*'s own output. A later token *t* uses **its own** query `q_t` against the stored keys and values of earlier tokens.
+**Q is not cached because it is never needed again.** $q_i$ is used only once, to compute token $i$'s own output. A later token $t$ uses **its own** query $q_t$ against the stored keys and values of earlier tokens.
 
-So one decode step for a new token *t* is: compute `q_t`, `k_t`, `v_t`; append `k_t`, `v_t` to the cache; attend `q_t` over all cached keys and values; discard `q_t`. Each layer (and each head) keeps its own cache. This works only for causal models. In a bidirectional encoder, earlier tokens' vectors do change when later tokens are added, so nothing could be reused. The cache is also valid only for an **identical prefix**, which is why prompt caching needs a stable start of the prompt (handout 06). [`examples/python/kv_cache.py`](../examples/python/kv_cache.py) shows identical outputs with 50 instead of 1,275 key/value projections.
+So one decode step for a new token $t$ is: compute $q_t$, $k_t$, $v_t$; append $k_t$, $v_t$ to the cache; attend $q_t$ over all cached keys and values; discard $q_t$. Each layer (and each head) keeps its own cache. This works only for causal models. In a bidirectional encoder, earlier tokens' vectors do change when later tokens are added, so nothing could be reused. The cache is also valid only for an **identical prefix**, which is why prompt caching needs a stable start of the prompt (handout 06). [`examples/python/kv_cache.py`](../examples/python/kv_cache.py) shows identical outputs with 50 instead of 1,275 key/value projections.
 
 Consequences developers should know:
 - Cached prompts are cheaper and faster, which is why providers offer **prompt caching** for stable prefixes.
@@ -211,12 +218,17 @@ Consequences developers should know:
 - Variants such as **multi-query / grouped-query attention (MQA/GQA)** share K/V across heads to shrink the cache. Many recent open models use GQA.
 
 ### Where the parameters are
-Per block, roughly `4·d²` in attention and `8·d²` in the MLP (with the common 4x expansion), so about `12·d²` per layer:
+Per block, roughly $4d^2$ parameters in attention and $8d^2$ in the MLP (with the common $4\times$ expansion, $d = d_{\text{model}}$), so about $12d^2$ per layer:
 
-```text
-params ≈ 12 · n_layers · d_model²   (+ embeddings)
-GPT-3:  12 · 96 · 12288² ≈ 174 billion   (reported: 175B)   ✓
-```
+$$
+\text{params} \approx 12 \cdot n_{\text{layers}} \cdot d_{\text{model}}^{2} \quad (+\ \text{embeddings})
+$$
+
+For GPT-3 ($96$ layers, $d_{\text{model}} = 12288$):
+
+$$
+12 \cdot 96 \cdot 12288^{2} \approx 174 \text{ billion} \qquad (\text{reported: } 175\text{B})
+$$
 This back-of-envelope estimate is useful for judging model size and memory (at 16-bit precision, each parameter takes 2 bytes).
 
 ### Prefill vs decode
@@ -293,7 +305,7 @@ Need chat, code, reasoning, tools, flexible tasks?    -> decoder-only
 
 ## Summary
 - Block = attention (mix across tokens) + MLP (process per token), wrapped with residuals and normalization. Stack N of them.
-- `softmax(QKᵀ/√d_k)·V`: the scaling keeps softmax from saturating. The causal mask enforces "no peeking ahead".
+- $\operatorname{softmax}\!\left(QK^{\top}/\sqrt{d_k}\right)V$: the scaling keeps softmax from saturating. The causal mask enforces "no peeking ahead".
 - Attention cost is quadratic in context. The KV cache makes decoding fast but eats memory.
 - Three families: encoder-only (understand), decoder-only (generate, dominant today), encoder-decoder (transform).
 

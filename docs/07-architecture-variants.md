@@ -6,7 +6,7 @@ The standard dense, text-only Transformer has four pain points, and most archite
 | Pain point | Symptom | Main answers |
 |---|---|---|
 | Every parameter works on every token | Compute grows with model size | **Mixture of Experts (MoE)** |
-| Attention cost grows with `n²`; the KV cache grows with `n` | Long contexts are slow and memory-hungry | **Long-context techniques**: position scaling, sliding windows, KV compression |
+| Attention cost grows with $n^2$; the KV cache grows with $n$ | Long contexts are slow and memory-hungry | **Long-context techniques**: position scaling, sliding windows, KV compression |
 | Text only | Cannot read images or audio | **Multimodal** encoders and projectors |
 | Attention keeps every past token | Memory per generated token keeps growing | **State-space models (SSMs)** and hybrids |
 
@@ -68,21 +68,28 @@ Reported examples (check the model cards): Mixtral 8x7B has about 47B parameters
 ## Part 2: Long-context techniques
 
 ### The problems
-1. Attention compute is `O(n²)` in sequence length (handout 03).
-2. The KV cache grows linearly with `n` and can exceed the weights (handout 06).
+1. Attention compute is $O(n^2)$ in sequence length $n$ (handout 03).
+2. The KV cache grows linearly with $n$ and can exceed the weights (handout 06).
 3. The model must handle positions **longer than it saw in training**.
 4. Even when it fits, the model may not **use** a long context reliably.
 
 ### Technique 1: stretch the positions (RoPE scaling)
 Recall RoPE (handout 02): token positions become rotation angles. Beyond the trained length the angles are values the model never saw. **Position interpolation** squeezes the new, longer range back into the trained range by scaling positions:
 
-```text
-position' = position × (trained_length / new_length)        # e.g. 4096 / 16384 = 0.25
-```
+$$
+\text{position}' = \text{position} \times \frac{\text{trained length}}{\text{new length}} \qquad \text{(for example } 4096 / 16384 = 0.25\text{)}
+$$
+
 Variants (NTK-aware scaling, YaRN) scale different frequencies differently. Usually a short fine-tune on long text follows. [`examples/python/rope.py`](../examples/python/rope.py) shows the property that makes this work: the attention score depends only on the **relative** offset (same score at positions (3, 0), (50, 47) and (1000, 997)).
 
 ### Technique 2: restrict who attends to whom (sliding window)
-Let each token attend only to the last `w` tokens. Cost drops from `O(n²)` to `O(n·w)`. Information still travels farther than `w` because layers stack: after `L` layers a token is influenced by about `L·(w-1)+1` positions.
+Let each token attend only to the last $w$ tokens. Cost drops from $O(n^2)$ to $O(n \cdot w)$. Information still travels farther than $w$ because layers stack: after $L$ layers a token is influenced by about
+
+$$
+L\,(w - 1) + 1
+$$
+
+positions.
 
 ```text
 window=4, token 15:   1 layer sees [12..15]   2 layers see [9..15]   3 layers see [6..15]
@@ -99,7 +106,7 @@ n=8000: full attention 32,004,000 pairs  vs  window 512: 3,965,184 pairs  (8x fe
 | Attention sinks (streaming) | Keep the first few tokens plus a recent window for endless streams; trades away exact memory of the middle |
 
 ### Technique 4: exact, faster kernels
-FlashAttention (handout 06) makes long sequences practical but does not change the `O(n²)` compute.
+FlashAttention (handout 06) makes long sequences practical but does not change the $O(n^2)$ compute.
 
 ### Advertised vs effective context
 A model's context window is the maximum it **accepts**. How well it **retrieves and reasons over** information at different positions varies (details in the middle are most at risk), and quality can degrade as prompts approach the limit. Test with your own long inputs, and prefer retrieving only what is relevant (handout 08).
@@ -122,7 +129,7 @@ flowchart LR
     LLM --> OUT["Text answer"]
 ```
 - A **vision encoder** (an encoder-only Transformer, handout 03) turns image patches into vectors.
-- A **projector** maps those vectors to the LLM's `d_model`, so they sit in the sequence next to text tokens.
+- A **projector** maps those vectors to the LLM's $d_{\text{model}}$, so they sit in the sequence next to text tokens.
 - The LLM then attends over image and text positions alike. Audio works the same way with an audio encoder (speech models like Whisper use an audio encoder, handout 03).
 
 ### Design variants
@@ -144,15 +151,15 @@ flowchart LR
 ### Intuition
 Attention remembers the past by keeping **every** token's key and value. A state-space model instead keeps a **fixed-size state** and updates it for each token, like an RNN (handout 01), but designed so it can still be trained in parallel.
 
-```text
-h_t = A · h_(t-1) + B · x_t        # update the state with the new token
-y_t = C · h_t                      # read the output from the state
-```
-`A` below 1 means old information fades smoothly.
+$$
+h_t = A\,h_{t-1} + B\,x_t \qquad\qquad y_t = C\,h_t
+$$
+
+The first equation updates the state $h$ with the new token $x_t$. The second reads the output $y_t$ from the state. An $A$ with magnitude below $1$ means old information fades smoothly.
 
 ### Two equivalent views
 - **Recurrent view:** step through tokens one by one with constant memory. Ideal for generation.
-- **Convolution view:** the same computation equals a causal convolution of the input with a fixed kernel `K_j = C · (A^j · B)`. This can be computed in parallel, which makes training fast.
+- **Convolution view:** the same computation equals a causal convolution of the input with a fixed kernel $K_j = C\,A^{j} B$. This can be computed in parallel, which makes training fast.
 
 [`examples/python/ssm.py`](../examples/python/ssm.py) implements both and a test confirms they give identical outputs:
 
@@ -160,7 +167,7 @@ y_t = C · h_t                      # read the output from the state
 recurrent == convolution: True
 after 100,000 tokens: SSM state = 8 numbers; KV cache grows to 100000 entries per layer
 ```
-**Mamba** makes `A`, `B`, `C` depend on the current input (**selective** SSM), so the model can decide what to keep and what to ignore. The simple fixed version above is only the starting point.
+**Mamba** makes $A$, $B$, $C$ depend on the current input (**selective** SSM), so the model can decide what to keep and what to ignore. The simple fixed version above is only the starting point.
 
 ### Trade-offs
 | | Attention (Transformer) | SSM (Mamba-style) |
