@@ -63,7 +63,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 | $W_Q$, $W_K$, $W_V$ | learned matrices that produce queries, keys, values |
 | $T$ | temperature (handout 04) |
 | $z_i$ | logit (raw score) of token $i$ (handout 04) |
-| $p$, $k$ | top-$p$ cumulative probability threshold, top-$k$ number of tokens kept (handout 04) |
+| $p$, $k$ | cumulative-probability threshold of top-p sampling, and number of tokens kept in top-k sampling (handout 04) |
 | $r$, $\alpha$ | LoRA rank and scaling constant (handout 05) |
 | $O(n^2)$ | cost growing with the square of the sequence length |
 
@@ -224,7 +224,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 - **Seq2seq:** setup with an encoder RNN that reads the source into a context vector and a decoder RNN that writes the target; attention later let the decoder look at all encoder states. 01
 - **SFT:** supervised fine-tuning. 05
 - **Sliding-window attention:** each token attends only to the last $w$ tokens; reach grows with depth. 07
-- **Softmax:** turns scores into positive probabilities summing to 1: $\operatorname{softmax}(z)_i = e^{z_i} / \sum_j e^{z_j}$. 03, 04
+- **Softmax:** turns scores into positive probabilities summing to 1: $\mathrm{softmax}(z)_i = e^{z_i} / \sum_j e^{z_j}$. 03, 04
 - **Special tokens:** vocabulary entries marking structure (end of text, roles, tool calls). 02
 - **Speculative decoding:** a draft model proposes several tokens and the target verifies them in one pass; output distribution is unchanged. 06
 - **State-space model (SSM):** sequence layer with a fixed-size state updated per token; recurrent for generation, convolution for training. 07

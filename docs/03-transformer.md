@@ -72,9 +72,11 @@ Example: in *"The animal didn't cross the street because it was tired"*, the tok
 > **Visual explanation:** for a picture-by-picture walk-through of these steps, see Jay Alammar's [*The Illustrated Transformer*](https://jalammar.github.io/illustrated-transformer/). It explains the original encoder-decoder Transformer, while this handout focuses on the decoder-only variant used by most LLMs today.
 
 ### The formula
+
 $$
-\text{Attention}(Q, K, V) = \operatorname{softmax}\!\left(\frac{Q K^{\top}}{\sqrt{d_k}}\right) V
+\text{Attention}(Q, K, V) = \mathrm{softmax}\!\left(\frac{Q K^{\top}}{\sqrt{d_k}}\right) V
 $$
+
 **Notation** (from the original paper, now standard). $d$ stands for *dimension*, the length of a vector. The subscript says which vector, and $n$ and $h$ are counts:
 
 | Symbol | Meaning | Example (original paper's base model) |
@@ -229,6 +231,7 @@ For GPT-3 ($96$ layers, $d_{\text{model}} = 12288$):
 $$
 12 \cdot 96 \cdot 12288^{2} \approx 174 \text{ billion} \qquad (\text{reported: } 175\text{B})
 $$
+
 This back-of-envelope estimate is useful for judging model size and memory (at 16-bit precision, each parameter takes 2 bytes).
 
 ### Prefill vs decode
@@ -305,7 +308,7 @@ Need chat, code, reasoning, tools, flexible tasks?    -> decoder-only
 
 ## Summary
 - Block = attention (mix across tokens) + MLP (process per token), wrapped with residuals and normalization. Stack N of them.
-- $\operatorname{softmax}\!\left(QK^{\top}/\sqrt{d_k}\right)V$: the scaling keeps softmax from saturating. The causal mask enforces "no peeking ahead".
+- $\mathrm{softmax}\!\left(QK^{\top}/\sqrt{d_k}\right)V$: the scaling keeps softmax from saturating. The causal mask enforces "no peeking ahead".
 - Attention cost is quadratic in context. The KV cache makes decoding fast but eats memory.
 - Three families: encoder-only (understand), decoder-only (generate, dominant today), encoder-decoder (transform).
 

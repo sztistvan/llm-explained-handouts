@@ -142,6 +142,7 @@ ok after waits [0.5, 1.0, 2.0]        # doubling delays; jitter added in real us
 ```
 
 ### Cost control
+
 $$
 \text{cost} = \bigl(n_{\text{fresh}} + n_{\text{cached}} \cdot (1 - \text{discount})\bigr) \cdot \text{price}_{\text{in}} + n_{\text{out}} \cdot \text{price}_{\text{out}}
 $$

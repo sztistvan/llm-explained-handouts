@@ -43,7 +43,7 @@ repeat for many steps:
     grads   = backpropagate(loss)                 # how should each weight change?
     weights = optimizer_step(weights, grads)      # AdamW, with a learning-rate schedule
 ```
-The same loop works for a table of 49 numbers or a model with hundreds of billions of weights. Runnable miniature in [`examples/python/train_bigram.py`](../examples/python/train_bigram.py): a bigram "model" whose logits are a table, trained with exactly this loop and cross-entropy gradient ($\operatorname{softmax}(z) - \text{onehot}(y)$).
+The same loop works for a table of 49 numbers or a model with hundreds of billions of weights. Runnable miniature in [`examples/python/train_bigram.py`](../examples/python/train_bigram.py): a bigram "model" whose logits are a table, trained with exactly this loop and cross-entropy gradient, which is $\mathrm{softmax}(z) - \text{onehot}(y)$.
 
 ```text
 loss: start 1.946 -> end 0.579  (perplexity 7.0 -> 1.78)     # 1.946 = ln(7): uniform over 7 words

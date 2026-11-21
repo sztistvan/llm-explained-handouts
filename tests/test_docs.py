@@ -77,6 +77,52 @@ def test_no_raw_pipe_inside_math_in_tables(md):
                 assert "|" not in formula, f"{md.name}: raw | in math within table row: {line[:70]}"
 
 
+FORBIDDEN_MACROS = [r"\operatorname"]  # rejected by GitHub's renderer ("macros are not allowed")
+
+
+@pytest.mark.parametrize("md", extract_math.FILES, ids=lambda p: p.name)
+def test_no_macros_that_github_rejects(md):
+    text = md.read_text(encoding="utf-8")
+    for macro in FORBIDDEN_MACROS:
+        assert macro not in text, f"{md.name}: {macro} is not allowed on GitHub (use \\mathrm or \\text)"
+
+
+@pytest.mark.parametrize("md", extract_math.FILES, ids=lambda p: p.name)
+def test_display_math_has_blank_lines_around_it(md):
+    """GitHub only treats $$ ... $$ as a display block with a blank line before and after it."""
+    lines = md.read_text(encoding="utf-8").splitlines()
+    in_code, open_at = False, None
+    for i, line in enumerate(lines):
+        if line.startswith("```"):
+            in_code = not in_code
+        if in_code or line.strip() != "$$":
+            continue
+        if open_at is None:                                   # opening fence
+            open_at = i
+            assert i == 0 or lines[i - 1].strip() == "", f"{md.name}:{i + 1}: blank line needed before $$"
+        else:                                                 # closing fence
+            nxt = lines[i + 1] if i + 1 < len(lines) else ""
+            assert nxt.strip() == "", f"{md.name}:{i + 1}: blank line needed after closing $$"
+            open_at = None
+    assert open_at is None, f"{md.name}: unclosed $$ block"
+
+
+INLINE_MATH = re.compile(r"(?<![\\$])\$(?!\$)([^$\n]+?)(?<![\\$])\$(?!\$)")
+
+
+@pytest.mark.parametrize("md", extract_math.FILES, ids=lambda p: p.name)
+def test_inline_math_follows_githubs_delimiter_rules(md):
+    text = extract_math.strip_code(md.read_text(encoding="utf-8"))
+    text = re.sub(r"\$\$.+?\$\$", "", text, flags=re.S)       # ignore display blocks
+    for m in INLINE_MATH.finditer(text):
+        before = text[m.start() - 1] if m.start() > 0 else " "
+        after = text[m.end()] if m.end() < len(text) else " "
+        where = f"{md.name}: ...{text[max(0, m.start() - 25):m.end() + 6]!r}"
+        assert not (before.isalnum() or before == "-"), f"{where}: opening $ glued to text, add a space"
+        assert not after.isalnum(), f"{where}: closing $ glued to a letter or digit"
+        assert not (m.group(1).endswith(")") and after == ")"), f"{where}: ')$)' is not parsed as math by GitHub"
+
+
 def test_formulas_are_present_in_the_math_heavy_handouts():
     counts = {name: len(display) + len(inline) for name, display, inline, _ in extract_math.all_math()}
     assert counts["03-transformer.md"] > 50

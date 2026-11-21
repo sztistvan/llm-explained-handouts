@@ -159,6 +159,7 @@ Attention (handout 03) compares tokens with each other, but by itself it has **n
 Why it matters beyond theory: the positional scheme strongly affects how well a model handles **long contexts** and whether context can be extended after training (handout 07).
 
 Sinusoidal formula (for reference; the idea is that each dimension oscillates at a different frequency, like the digits of a clock):
+
 $$
 \begin{aligned}
 PE_{(\text{pos},\,2i)}   &= \sin\!\left(\frac{\text{pos}}{10000^{2i/d_{\text{model}}}}\right) \\

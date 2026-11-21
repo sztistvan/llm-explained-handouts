@@ -23,7 +23,7 @@ flowchart LR
 Logits are unnormalized "votes": they can be negative, and they don't sum to anything meaningful. **Softmax** converts them into probabilities (all positive, sum to 1) while keeping the order: a higher logit always means a higher probability.
 
 $$
-\operatorname{softmax}(z)_i = \frac{e^{z_i}}{\sum_{j} e^{z_j}}
+\mathrm{softmax}(z)_i = \frac{e^{z_i}}{\sum_{j} e^{z_j}}
 $$
 
 where $z_i$ is the logit of token $i$. Because of the exponential, differences between logits are amplified: a gap of $1$ means the top token is about $e^{1} \approx 2.7$ times more likely, a gap of $3$ about $e^{3} \approx 20$ times.

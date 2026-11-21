@@ -56,7 +56,7 @@ flowchart LR
 **In symbols.** At step $t$ the cell takes the current token vector $x_t$ and the previous hidden state $h_{t-1}$, and produces the new hidden state $h_t$ and the output $y_t$:
 
 $$
-h_t = \tanh\!\left(W_x x_t + W_h h_{t-1} + b\right), \qquad y_t = \operatorname{softmax}(W_y h_t)
+h_t = \tanh\!\left(W_x x_t + W_h h_{t-1} + b\right), \qquad y_t = \mathrm{softmax}(W_y h_t)
 $$
 
 - $W_x$ turns the new word into a contribution to the note, and $W_h$ decides how much of the old note is carried over. Together with the bias $b$ they are learned weights, shared by all steps.
@@ -120,7 +120,7 @@ flowchart LR
 Squeezing a whole sentence into one fixed-size vector is a **bottleneck**, and it hurt long sentences. **Attention** (Bahdanau et al., 2014; refined by Luong et al., 2015) removes it with two changes. First, the encoder passes **all** its hidden states to the decoder, not only the last one. Second, at every output step the decoder first works out which of them matter. The diagram shows one such step, the one that produces "student":
 
 ```mermaid
-flowchart TB
+flowchart LR
     H["Encoder hidden states, all kept:<br/>h1 (je), h2 (suis), h3 (étudiant)"]
     S["s_t: decoder state<br/>(what the decoder needs now)"]
     H --> score["Step 1: score every h_i against s_t"]
@@ -136,7 +136,7 @@ flowchart TB
 In symbols: the decoder's current state $s_t$ is compared with each encoder state $h_i$ to get a score, softmax turns the scores into weights $\alpha_i$, and the context for this step is the weighted sum of the encoder states:
 
 $$
-\alpha_i = \operatorname{softmax}_i\bigl(\text{score}(s_t, h_i)\bigr), \qquad c_t = \sum_i \alpha_i \, h_i
+\alpha_i = \mathrm{softmax}_i\bigl(\text{score}(s_t, h_i)\bigr), \qquad c_t = \sum_i \alpha_i \, h_i
 $$
 
 A new context vector $c_t$ is built at **every** step, so when writing "student" the decoder can look straight back at `étudiant`, wherever it sits in the source. Bahdanau et al. computed the score with a small neural network. Luong et al. also proposed a simple dot product, the form the Transformer later adopted (with scaling). The diagram shows the common "concatenate" variant described by Luong et al. and used in Jay Alammar's walk-through. Bahdanau et al. instead feed the context into the decoder's state update, and their encoder reads the sentence in both directions. The core idea is the same.

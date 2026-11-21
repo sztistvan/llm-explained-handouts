@@ -50,6 +50,7 @@ $$
 $$
 
 ### Weights
+
 $$
 \text{bytes} = \text{parameters} \times \text{bytes per parameter}
 $$
@@ -57,6 +58,7 @@ $$
 An 8B model: about 15 GiB at 16-bit, about 4 GiB at 4-bit.
 
 ### The KV cache grows with context and with concurrent users
+
 $$
 \text{KV bytes} = 2 \cdot n_{\text{layers}} \cdot n_{\text{kv-heads}} \cdot d_{\text{head}} \cdot n_{\text{tokens}} \cdot \text{batch} \cdot \text{bytes per value}
 $$
@@ -85,7 +87,7 @@ The same example also proves the cache is a pure optimization: decoding 50 token
 Weights are normally stored as 16-bit numbers. **Quantization** stores them with fewer bits (8, 4 or even less) plus a **scale factor** to map integers back to approximate real values:
 
 $$
-q = \operatorname{round}\!\left(\frac{w}{s}\right) \qquad\qquad \hat{w} = q \cdot s \approx w
+q = \mathrm{round}\!\left(\frac{w}{s}\right) \qquad\qquad \hat{w} = q \cdot s \approx w
 $$
 
 Here $w$ is the original weight, $s$ the scale, $q$ an integer (for example in $[-7, 7]$ for 4 bit), and $\hat{w}$ the reconstructed approximation. Fewer bits means less memory to store and less memory traffic to read, hence faster decoding.
@@ -189,6 +191,7 @@ The speedup depends on how often the draft agrees with the target. It helps most
 | Break-even | Low or spiky traffic | Steady high volume, strict privacy or latency needs |
 
 ### Estimating cost
+
 $$
 \text{cost} = n_{\text{in}} \cdot \text{price}_{\text{in}} + n_{\text{out}} \cdot \text{price}_{\text{out}}
 \qquad
