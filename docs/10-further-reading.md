@@ -16,6 +16,7 @@ Curated next steps, grouped by purpose. Papers link to arXiv. Resources change, 
 ## Start here (intuition first)
 - Andrej Karpathy, [*Intro to Large Language Models*](https://www.youtube.com/watch?v=zjkBMFhNj_g) and [*Deep Dive into LLMs like ChatGPT*](https://www.youtube.com/watch?v=7xTGNNLPyMI) (videos): the whole pipeline in about an hour or three.
 - Jay Alammar, [*The Illustrated Transformer*](https://jalammar.github.io/illustrated-transformer/), [*The Illustrated GPT-2*](https://jalammar.github.io/illustrated-gpt2/) and [*The Illustrated Word2vec*](https://jalammar.github.io/illustrated-word2vec/): the best visual walk-throughs of attention and embeddings.
+- Jay Alammar, [*Visualizing A Neural Machine Translation Model*](https://jalammar.github.io/visualizing-neural-machine-translation-mechanics-of-seq2seq-models-with-attention/): animated seq2seq and attention, the step before the Transformer.
 - 3Blue1Brown, [*Neural networks* series](https://www.youtube.com/playlist?list=PLZHQObOWTQDNU6R1_67000Dx_ZCJB-3pi) (its chapters on GPT and transformers): animated explanations of embeddings and attention.
 - [*LLM Visualization*](https://bbycroft.net/llm): an interactive 3D walkthrough of a GPT model (a tiny 85,000-parameter one, plus GPT-2 and GPT-3 views), from embedding through attention and the MLP to softmax. Best on a desktop browser.
 - Hugging Face, [*LLM Course*](https://huggingface.co/learn): hands-on, with code.
@@ -36,6 +37,7 @@ Matching the handouts. Start with the first and the starred ones. Skim the rest 
 |---|---|
 | Bahdanau et al., [*Neural Machine Translation by Jointly Learning to Align and Translate*](https://arxiv.org/abs/1409.0473) (2014) | Where attention started |
 | Sutskever et al., [*Sequence to Sequence Learning with Neural Networks*](https://arxiv.org/abs/1409.3215) (2014) | The encoder-decoder RNN setup |
+| Luong et al., [*Effective Approaches to Attention-based Neural Machine Translation*](https://arxiv.org/abs/1508.04025) (2015) | Simpler (dot-product) attention scores |
 | ⭐ Vaswani et al., [*Attention Is All You Need*](https://arxiv.org/abs/1706.03762) (2017) | The Transformer |
 | Devlin et al., [*BERT*](https://arxiv.org/abs/1810.04805) (2018) | Encoder-only pretraining |
 | Raffel et al., [*Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transformer* (T5)](https://arxiv.org/abs/1910.10683) (2019) | Encoder-decoder, text-to-text |

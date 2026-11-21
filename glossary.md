@@ -97,6 +97,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 - **Compute-bound / memory-bandwidth-bound:** limited by arithmetic speed (prefill) / by how fast data can be read from memory (decode). 06
 - **Constitutional AI:** a method where a model uses written principles to critique and generate preference labels. 05
 - **Constrained decoding:** masking illegal tokens at each step to guarantee a grammar or JSON schema. 04
+- **Context vector:** in classic seq2seq, the single fixed-size vector (the encoder's last hidden state) summarizing the source sentence; with attention, a new context vector $c_t$ is built from all encoder states at every decoding step. 01
 - **Context window:** the maximum number of tokens the model can read at once; its only working memory. 00, 03
 - **Contamination:** benchmark questions leaking into training data, inflating scores. 05
 - **Cosine similarity:** how closely two vectors point in the same direction (−1 to 1). 02
@@ -128,6 +129,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 
 ## G
 - **Function calling / tool use:** the model emits a structured request naming a tool and arguments; your code validates and runs it. 08
+- **Gates (LSTM, GRU):** small learned switches that decide what a recurrent cell keeps, overwrites or outputs, letting information survive more steps. 01
 - **GELU:** a smooth activation function used in many Transformers. 03
 - **Gradient / gradient descent:** the direction of steepest loss increase / repeatedly stepping weights the opposite way. 05
 - **Gradient clipping:** capping very large gradients to avoid unstable training. 05
@@ -140,7 +142,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 - **Hybrid search:** combining vector (semantic) search with keyword search. 08
 - **Hybrid model:** architecture interleaving attention layers with SSM (and sometimes MoE) layers. 07
 - **Guardrails:** checks and limits around the model (input/output validation, moderation, tool permissions). 09
-- **Hidden state:** a token's vector inside the network after at least one block (size $d_{\text{model}}$). 03
+- **Hidden state:** the vector a network carries internally. In an RNN, the fixed-size memory $h_t$ passed from one step to the next; in a Transformer, a token's vector after at least one block (size $d_{\text{model}}$). 01, 03
 
 ## I
 - **Indirect prompt injection:** malicious instructions hidden in content the model processes (web page, email, document, tool result). 09
@@ -211,7 +213,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 - **Residual connection:** adding a layer's output to its input. 03
 - **Reward model:** model trained on human comparisons to score answers. 05
 - **RLHF / RLAIF / RLVR:** reinforcement learning with human feedback / AI feedback / automatically verifiable rewards. 05
-- **RNN / LSTM:** recurrent networks that read tokens sequentially with a hidden state. 01
+- **RNN / LSTM:** recurrent networks that read tokens one at a time, applying the same cell to the current token and the previous hidden state to produce a new hidden state. 01
 - **RoPE:** positional method that rotates query/key vectors by position. 02
 
 ## S
@@ -219,7 +221,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 - **Scaling laws:** loss falls predictably as parameters, data and compute grow. 01, 05
 - **Self-attention:** attention where queries, keys and values all come from the same sequence. 03
 - **Self-supervised learning:** learning from labels derived from the data itself (the next token). 05
-- **Seq2seq:** encoder-decoder RNN setup for translation-like tasks. 01
+- **Seq2seq:** setup with an encoder RNN that reads the source into a context vector and a decoder RNN that writes the target; attention later let the decoder look at all encoder states. 01
 - **SFT:** supervised fine-tuning. 05
 - **Sliding-window attention:** each token attends only to the last $w$ tokens; reach grows with depth. 07
 - **Softmax:** turns scores into positive probabilities summing to 1: $\operatorname{softmax}(z)_i = e^{z_i} / \sum_j e^{z_j}$. 03, 04
@@ -240,7 +242,9 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 
 ## U–Z
 - **Unembedding (output projection):** final matrix turning a vector into one logit per vocabulary token. 03
+- **Unrolling:** drawing a recurrent network as one copy of the cell per time step, to follow how information flows (the copies share the same weights). 01
 - **Value (V):** the information a token contributes when attended to. 03
+- **Vanishing gradient:** the training signal (and the influence of old inputs) shrinking step by step in a recurrent network, so long-range links are hard to learn. 01
 - **Vector database / index:** store that finds the nearest embeddings to a query vector. 08
 - **Vision encoder / projector:** the encoder that turns image patches into vectors / the small network mapping them to the LLM's $d_{\text{model}}$. 07
 - **Vocabulary:** the set of all tokens a model knows (about 30k to 250k+). 02
