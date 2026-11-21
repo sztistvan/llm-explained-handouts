@@ -114,6 +114,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 ## E
 - **Eval (evaluation set):** fixed test inputs with automatic checks, run repeatedly to measure an LLM feature statistically. 09
 - **Embedding:** a learned vector representing a token (or a whole text, for embedding models). 02
+- **Expert parallelism:** placing different MoE experts on different GPUs; the runtime sends each token to the GPU holding its expert and brings the result back (an all-to-all exchange). 05, 07
 - **Expert:** one of several parallel MLPs in an MoE layer; the router picks a few per token. 07
 - **Embedding model:** model that maps a whole text to one vector, used for search and RAG. 02
 - **Emergent abilities:** skills that seem to appear suddenly at larger scale; the sharpness is debated. 05

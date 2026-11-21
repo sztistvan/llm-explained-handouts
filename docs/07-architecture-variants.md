@@ -56,6 +56,21 @@ Tests confirm exactly k experts run per token and that the output equals the man
 
 Reported examples (check the model cards): Mixtral 8x7B has about 47B parameters in total and uses about 13B per token. DeepSeek-V3 has 671B in total and uses about 37B per token. MoE therefore buys a "bigger brain for the same per-token cost", paid for with memory and serving complexity (experts are spread across GPUs: *expert parallelism*, handout 05).
 
+### Who does what: the model and the runtime
+Two different things are easy to mix up here: **deciding** which experts handle a token, and **carrying out** that decision efficiently.
+
+| | The model (its weights) | The inference runtime (vLLM, TensorRT-LLM, SGLang and similar) |
+|---|---|---|
+| **Decides** | For every token in every MoE layer, the learned router picks the top $k$ experts and their weights | Nothing about routing. It follows the router's choice |
+| **Executes** | Defines what each expert computes | Groups the tokens by expert, runs each expert once on its group, multiplies by the router weights and puts the results back in token order |
+| **Multi-GPU** | Is unaware of GPUs | With **expert parallelism**, sends each token to the GPU that holds its expert and brings the result back (an all-to-all exchange, which needs fast interconnect) |
+| **Balance** | Training tries to spread tokens evenly across experts | Handles the leftover imbalance when scheduling, because a popular expert's GPU becomes the bottleneck |
+
+Three things this is **not**:
+- The experts are not separate models or services. They are weight matrices inside the same checkpoint, and the router picks among them inside a single forward pass, at no extra API call.
+- It is not agent orchestration (handout 08), which happens between model calls.
+- It is not model routing, where an application chooses between a small and a large model before the request runs.
+
 ### Practical details
 - **Load balancing:** without care the router collapses onto a few favorite experts. Training adds a balancing loss (or bias adjustments) so tokens spread evenly.
 - **Experts are not human-readable topics.** Do not expect "the math expert" and "the French expert". Observed specialization tends to be subtler (for example, syntactic patterns).
