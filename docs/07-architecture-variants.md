@@ -86,7 +86,7 @@ Variants (NTK-aware scaling, YaRN) scale different frequencies differently. Usua
 Let each token attend only to the last $w$ tokens. Cost drops from $O(n^2)$ to $O(n \cdot w)$. Information still travels farther than $w$ because layers stack: after $L$ layers a token is influenced by about
 
 $$
-L\,(w - 1) + 1
+L (w - 1) + 1
 $$
 
 positions.
@@ -152,14 +152,14 @@ flowchart LR
 Attention remembers the past by keeping **every** token's key and value. A state-space model instead keeps a **fixed-size state** and updates it for each token, like an RNN (handout 01), but designed so it can still be trained in parallel.
 
 $$
-h_t = A\,h_{t-1} + B\,x_t \qquad\qquad y_t = C\,h_t
+h_t = A h_{t-1} + B x_t \qquad\qquad y_t = C h_t
 $$
 
 The first equation updates the state $h$ with the new token $x_t$. The second reads the output $y_t$ from the state. An $A$ with magnitude below $1$ means old information fades smoothly.
 
 ### Two equivalent views
 - **Recurrent view:** step through tokens one by one with constant memory. Ideal for generation.
-- **Convolution view:** the same computation equals a causal convolution of the input with a fixed kernel $K_j = C\,A^{j} B$. This can be computed in parallel, which makes training fast.
+- **Convolution view:** the same computation equals a causal convolution of the input with a fixed kernel $K_j = C A^{j} B$. This can be computed in parallel, which makes training fast.
 
 [`examples/python/ssm.py`](../examples/python/ssm.py) implements both and a test confirms they give identical outputs:
 

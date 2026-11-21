@@ -74,7 +74,7 @@ Example: in *"The animal didn't cross the street because it was tired"*, the tok
 ### The formula
 
 $$
-\text{Attention}(Q, K, V) = \mathrm{softmax}\!\left(\frac{Q K^{\top}}{\sqrt{d_k}}\right) V
+\text{Attention}(Q, K, V) = \mathrm{softmax}\left(\frac{Q K^{\top}}{\sqrt{d_k}}\right) V
 $$
 
 **Notation** (from the original paper, now standard). $d$ stands for *dimension*, the length of a vector. The subscript says which vector, and $n$ and $h$ are counts:
@@ -135,7 +135,7 @@ Training then shapes each matrix so that it does its job well. The roles are lea
 A way to see the mechanism: the score between token $i$ and token $j$ is
 
 $$
-\text{score}_{ij} = (x_i W_Q)(x_j W_K)^{\top} = x_i \,\bigl(W_Q W_K^{\top}\bigr)\, x_j^{\top}
+\text{score}_{ij} = (x_i W_Q)(x_j W_K)^{\top} = x_i  \bigl(W_Q W_K^{\top}\bigr)  x_j^{\top}
 $$
 
 so the model really learns **one matrix $M = W_Q W_K^{\top}$** that says "how much does token $i$ care about token $j$". Swapping Q and K replaces $M$ by $M^{\top}$, which reverses the relation to "how much does $j$ care about $i$".
@@ -308,7 +308,7 @@ Need chat, code, reasoning, tools, flexible tasks?    -> decoder-only
 
 ## Summary
 - Block = attention (mix across tokens) + MLP (process per token), wrapped with residuals and normalization. Stack N of them.
-- $\mathrm{softmax}\!\left(QK^{\top}/\sqrt{d_k}\right)V$: the scaling keeps softmax from saturating. The causal mask enforces "no peeking ahead".
+- $\mathrm{softmax}\left(QK^{\top}/\sqrt{d_k}\right)V$: the scaling keeps softmax from saturating. The causal mask enforces "no peeking ahead".
 - Attention cost is quadratic in context. The KV cache makes decoding fast but eats memory.
 - Three families: encoder-only (understand), decoder-only (generate, dominant today), encoder-decoder (transform).
 

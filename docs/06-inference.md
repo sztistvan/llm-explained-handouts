@@ -87,7 +87,7 @@ The same example also proves the cache is a pure optimization: decoding 50 token
 Weights are normally stored as 16-bit numbers. **Quantization** stores them with fewer bits (8, 4 or even less) plus a **scale factor** to map integers back to approximate real values:
 
 $$
-q = \mathrm{round}\!\left(\frac{w}{s}\right) \qquad\qquad \hat{w} = q \cdot s \approx w
+q = \mathrm{round}\left(\frac{w}{s}\right) \qquad\qquad \hat{w} = q \cdot s \approx w
 $$
 
 Here $w$ is the original weight, $s$ the scale, $q$ an integer (for example in $[-7, 7]$ for 4 bit), and $\hat{w}$ the reconstructed approximation. Fewer bits means less memory to store and less memory traffic to read, hence faster decoding.
@@ -158,13 +158,13 @@ sequenceDiagram
 For each proposed token $x$, drawn from the draft distribution $q$ (with $p$ the target distribution):
 
 $$
-\text{accept } x \text{ with probability } \min\!\left(1, \frac{p(x)}{q(x)}\right)
+\text{accept } x \text{ with probability } \min\left(1, \frac{p(x)}{q(x)}\right)
 $$
 
 If it is rejected, resample from the normalized "residual" and stop:
 
 $$
-\text{residual}(y) = \frac{\max\bigl(0,\; p(y) - q(y)\bigr)}{\sum_{y'} \max\bigl(0,\; p(y') - q(y')\bigr)}
+\text{residual}(y) = \frac{\max\bigl(0,  p(y) - q(y)\bigr)}{\sum_{y'} \max\bigl(0,  p(y') - q(y')\bigr)}
 $$
 
 The acceptance rule is built so that **the output distribution is exactly the target model's**. Quality does not change. Only speed does. [`examples/python/speculative.py`](../examples/python/speculative.py) checks this empirically over 200,000 draws:

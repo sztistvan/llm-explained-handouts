@@ -56,7 +56,7 @@ flowchart LR
 **In symbols.** At step $t$ the cell takes the current token vector $x_t$ and the previous hidden state $h_{t-1}$, and produces the new hidden state $h_t$ and the output $y_t$:
 
 $$
-h_t = \tanh\!\left(W_x x_t + W_h h_{t-1} + b\right), \qquad y_t = \mathrm{softmax}(W_y h_t)
+h_t = \tanh\left(W_x x_t + W_h h_{t-1} + b\right), \qquad y_t = \mathrm{softmax}(W_y h_t)
 $$
 
 - $W_x$ turns the new word into a contribution to the note, and $W_h$ decides how much of the old note is carried over. Together with the bias $b$ they are learned weights, shared by all steps.
@@ -136,7 +136,7 @@ flowchart LR
 In symbols: the decoder's current state $s_t$ is compared with each encoder state $h_i$ to get a score, softmax turns the scores into weights $\alpha_i$, and the context for this step is the weighted sum of the encoder states:
 
 $$
-\alpha_i = \mathrm{softmax}_i\bigl(\text{score}(s_t, h_i)\bigr), \qquad c_t = \sum_i \alpha_i \, h_i
+\alpha_i = \mathrm{softmax}_i\bigl(\text{score}(s_t, h_i)\bigr), \qquad c_t = \sum_i \alpha_i   h_i
 $$
 
 A new context vector $c_t$ is built at **every** step, so when writing "student" the decoder can look straight back at `étudiant`, wherever it sits in the source. Bahdanau et al. computed the score with a small neural network. Luong et al. also proposed a simple dot product, the form the Transformer later adopted (with scaling). The diagram shows the common "concatenate" variant described by Luong et al. and used in Jay Alammar's walk-through. Bahdanau et al. instead feed the context into the decoder's state update, and their encoder reads the sentence in both directions. The core idea is the same.

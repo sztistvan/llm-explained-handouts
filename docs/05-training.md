@@ -27,7 +27,7 @@ Almost all of the cost (compute, data, money) is in stage 1.
 For every position in a training text, the model predicts a distribution over the next token. The **loss** for one position is $-\log p(\text{correct token})$: small when the model gave the real token high probability, large when it did not. Training pushes the average over all $N$ positions down:
 
 $$
-\text{loss} = -\frac{1}{N} \sum_{t=1}^{N} \log p_{\text{model}}\!\left(\text{token}_{t+1} \mid \text{token}_1, \dots, \text{token}_t\right)
+\text{loss} = -\frac{1}{N} \sum_{t=1}^{N} \log p_{\text{model}}\left(\text{token}_{t+1} \mid \text{token}_1, \dots, \text{token}_t\right)
 $$
 
 **Perplexity** is $e^{\text{loss}}$: roughly "how many tokens the model is torn between on average". Lower is better. A model guessing uniformly over a vocabulary of $V$ tokens has perplexity $V$.
@@ -145,7 +145,7 @@ For math, code and puzzles the answer can be **checked automatically** (does the
 Updating every weight of a large model needs the full training memory (about 16 bytes per parameter) and produces a full-size copy per task. **LoRA** (Low-Rank Adaptation, Hu et al., 2021) freezes the original weights and learns a small *low-rank correction* to selected matrices:
 
 $$
-W_{\text{effective}} = W_0 + \frac{\alpha}{r}\, B A
+W_{\text{effective}} = W_0 + \frac{\alpha}{r}  B A
 $$
 
 where $W_0 \in \mathbb{R}^{d_{\text{out}} \times d_{\text{in}}}$ is frozen, $B \in \mathbb{R}^{d_{\text{out}} \times r}$ and $A \in \mathbb{R}^{r \times d_{\text{in}}}$ are trained, $\alpha$ is a scaling constant, and the rank $r \ll d$ (for example $r = 8$).

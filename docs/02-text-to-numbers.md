@@ -111,7 +111,7 @@ flowchart TB
 - Similarity is measured with **cosine similarity** (do two vectors point in the same direction?):
 
 $$
-\cos(a, b) = \frac{a \cdot b}{\lVert a \rVert \, \lVert b \rVert}
+\cos(a, b) = \frac{a \cdot b}{\lVert a \rVert   \lVert b \rVert}
 $$
 
 It is $1$ for identical directions, $0$ for unrelated (perpendicular) vectors, and $-1$ for opposite ones.
@@ -162,8 +162,8 @@ Sinusoidal formula (for reference; the idea is that each dimension oscillates at
 
 $$
 \begin{aligned}
-PE_{(\text{pos},\,2i)}   &= \sin\!\left(\frac{\text{pos}}{10000^{2i/d_{\text{model}}}}\right) \\
-PE_{(\text{pos},\,2i+1)} &= \cos\!\left(\frac{\text{pos}}{10000^{2i/d_{\text{model}}}}\right)
+PE_{(\text{pos}, 2i)}   &= \sin\left(\frac{\text{pos}}{10000^{2i/d_{\text{model}}}}\right) \\
+PE_{(\text{pos}, 2i+1)} &= \cos\left(\frac{\text{pos}}{10000^{2i/d_{\text{model}}}}\right)
 \end{aligned}
 $$
 

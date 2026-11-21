@@ -77,14 +77,19 @@ def test_no_raw_pipe_inside_math_in_tables(md):
                 assert "|" not in formula, f"{md.name}: raw | in math within table row: {line[:70]}"
 
 
-FORBIDDEN_MACROS = [r"\operatorname"]  # rejected by GitHub's renderer ("macros are not allowed")
+FORBIDDEN_MACROS = {
+    r"\operatorname": r"GitHub rejects it (use \mathrm or \text)",
+    r"\!": "GitHub prints the spacing macro as a literal '!' (just delete it)",
+    r"\,": "GitHub prints the spacing macro as a literal ',' (use a plain space)",
+    r"\;": "GitHub prints the spacing macro as a literal ';' (use a plain space)",
+}
 
 
 @pytest.mark.parametrize("md", extract_math.FILES, ids=lambda p: p.name)
-def test_no_macros_that_github_rejects(md):
-    text = md.read_text(encoding="utf-8")
-    for macro in FORBIDDEN_MACROS:
-        assert macro not in text, f"{md.name}: {macro} is not allowed on GitHub (use \\mathrm or \\text)"
+def test_no_macros_that_github_mishandles(md):
+    text = extract_math.strip_code(md.read_text(encoding="utf-8"))
+    for macro, why in FORBIDDEN_MACROS.items():
+        assert macro not in text, f"{md.name}: {macro}: {why}"
 
 
 @pytest.mark.parametrize("md", extract_math.FILES, ids=lambda p: p.name)
