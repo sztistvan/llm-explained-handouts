@@ -219,6 +219,31 @@ Consequences developers should know:
 - The cache grows with context length and consumes **GPU memory**, often the real limit on concurrent users.
 - Variants such as **multi-query / grouped-query attention (MQA/GQA)** share K/V across heads to shrink the cache. Many recent open models use GQA.
 
+#### A second view: the cache step by step
+The same mechanism again, this time following the matrices through a short generation. Suppose the prompt has 2 tokens:
+
+| Step | Tokens processed | $Q$ rows computed | $Z$ rows produced | K and V cache afterwards |
+|---|---|---|---|---|
+| Prefill (the 2-token prompt) | 1 and 2, together | $q_1, q_2$ | $z_1, z_2$ | $k_1, k_2$ and $v_1, v_2$ |
+| Decode, step 2 | 3 | $q_3$ | $z_3$ | $k_1, k_2, k_3$ and $v_1, v_2, v_3$ |
+| Decode, step 3 | 4 | $q_4$ | $z_4$ | $k_1 \dots k_4$ and $v_1 \dots v_4$ |
+
+The **last** row of $Z$ (after the final layer, followed by the output projection and softmax of handout 04) gives the probabilities for the next token. The rows $q_2$ and $z_2$ are not recomputed at step 2: their job was done during prefill, and their effect lives on in the cached K and V of the layers above.
+
+**Three ways to generate.** What each step recomputes, for a sequence of $n$ tokens:
+
+| Mode | Query rows computed per step | Remark |
+|---|---|---|
+| No cache, whole sequence | $q_1 \dots q_n$ (all of them) | Correct but wasteful. Only the last row of $Z$ is used. |
+| No cache, window of $w$ tokens | the last $w$ queries | The window slides, so positions and the deeper layers' hidden states change. Results differ from full context. |
+| **KV cache** | $q_n$ only | Same results as full context, and fast. |
+
+A cached sliding window (handout 07) is different from the middle row: it keeps the original K and V in a ring buffer instead of recomputing a shifted window.
+
+**Which rows depend on what.** In $Z = \mathrm{softmax}(QK^{\top}/\sqrt{d_k})V$, row $i$ of $Z$ is computed from row $i$ of $Q$ only, together with the keys and values (up to position $i$ in a decoder). A previous query $q_k$ with $k < i$ only produces the earlier row $z_k$. It matters for token $i$ only indirectly: $z_k$ goes through the MLP, becomes token $k$'s input to the next layer, and there produces that layer's $k$ and $v$, which token $i$ attends to. Those are exactly the cached values, so no earlier query needs to be computed again. This is checked in `tests/test_examples.py`: the last output row is identical when computed from the last query alone, and changing $q_3$ changes only output row 3.
+
+**Where the cache lives, and when it is full.** In practice the cache is a buffer reserved in advance (or a set of blocks, see handout 06) together with a counter of how many rows are filled. Each step writes the new $k$ and $v$ into the next free slot, and attention reads only the filled rows. The empty slots are not zeros that get attended to, they are simply never read. When the buffer reaches the model's maximum context length, a full-attention model cannot continue: generation stops, or the application shortens the conversation and sends it again, which runs prefill from scratch for the new prompt. Putting stable text such as the system prompt first lets its cached part be reused. Models with sliding-window attention instead overwrite the oldest slot, like a ring buffer (handout 07).
+
 ### Where the parameters are
 Per block, roughly $4d^2$ parameters in attention and $8d^2$ in the MLP (with the common $4\times$ expansion, $d = d_{\text{model}}$), so about $12d^2$ per layer:
 

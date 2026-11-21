@@ -79,6 +79,12 @@ The same example also proves the cache is a pure optimization: decoding 50 token
 - **PagedAttention** (introduced by the vLLM project): store the KV cache in small fixed-size blocks, like virtual-memory pages, instead of one large contiguous buffer per request. This removes fragmentation and over-reservation, so many more requests fit in memory.
 - **Prefix caching** (what API providers sell as **prompt caching**): if many requests start with the same tokens (a long system prompt, a shared document), compute that prefix's KV cache once and reuse it. Only the new suffix is processed.
 
+#### What the cache physically is
+- **A buffer plus a counter.** In a simple engine, the cache of one request is a buffer reserved for the maximum context length, with a counter of how many rows are filled. Each decode step writes the new $k$ and $v$ into the next free slot and increments the counter. Attention reads only the filled rows. The empty slots are not zeros that get attended to (a zero key would still receive attention weight), they are simply never read. Handout 03 shows the same thing step by step with the matrices.
+- **A block table (paged cache).** With PagedAttention, the "pointer" is a table that maps token positions to blocks. A new token goes into the next free slot of the last block, and when that block is full another one is taken from the free pool.
+- **A ring buffer (sliding window).** For sliding-window attention (handout 07) the write position wraps around and overwrites the oldest slot. Nothing is shifted in memory, because the order of the rows does not matter to attention: each key's position is already built into the key.
+- **When the context is full.** A full-attention model cannot go on: generation stops (the API reports that it stopped because of length) or the request is rejected. If the application shortens the conversation and resends it, the engine runs prefill again for the new prompt, and only an unchanged cached prefix can be reused. Dropping the oldest turns changes the start of the prompt, so almost everything is recomputed. Keep the system prompt first, and summarize old turns instead of truncating them (handout 08).
+
 ---
 
 ## Part 3: Quantization

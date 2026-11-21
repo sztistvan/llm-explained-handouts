@@ -70,6 +70,8 @@ Runnable example: [`examples/python/toy_bpe.py`](../examples/python/toy_bpe.py).
 - **Reversing strings, anagram-like tasks:** same cause.
 These are tokenization effects, not (only) lack of "intelligence".
 
+*Remark*: LLMs with code execution / tools can solve them nearly 100% reliable becasue models writes and runs a quick script (e.g., Python) instead of doing character math in its head.
+
 ### Counting tokens in code
 ```python
 # pip install tiktoken   (OpenAI's tokenizer library; other vendors ship their own)

@@ -138,6 +138,24 @@ def test_cached_keys_and_values_do_not_change_when_tokens_are_appended():
     assert np.allclose(h_short, h_long)
 
 
+def test_last_output_row_needs_only_the_last_query():
+    """Row i of the attention output depends on query i only (plus keys and values)."""
+    rng = np.random.default_rng(7)
+    n, d = 6, 8
+    X = rng.normal(size=(n, d))
+    Wq, Wk, Wv = (rng.normal(size=(d, d)) for _ in range(3))
+    Q, K, V = X @ Wq, X @ Wk, X @ Wv
+    mask = attention.causal_mask(n)
+    full, _ = attention.scaled_dot_product_attention(Q, K, V, mask)
+    last, _ = attention.scaled_dot_product_attention(Q[-1:], K, V)       # last query row only
+    assert np.allclose(full[-1], last[0])
+
+    Q_changed = Q.copy()
+    Q_changed[2] = rng.normal(size=d)                                    # change q_3 only
+    changed, _ = attention.scaled_dot_product_attention(Q_changed, K, V, mask)
+    assert [i for i in range(n) if not np.allclose(full[i], changed[i])] == [2]   # only output row 3 moves
+
+
 def test_transformer_block_preserves_shape():
     rng = np.random.default_rng(3)
     x = rng.normal(size=(6, 16))

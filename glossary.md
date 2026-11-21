@@ -208,6 +208,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 ## R
 - **RAG:** retrieving relevant documents and adding them to the prompt, so answers are grounded in your data. 05, 08
 - **Reranking:** reordering or filtering retrieved passages with a stronger model before prompting. 08
+- **Re-prefill:** running prefill again for a new or shortened prompt, which rebuilds the KV cache from scratch (only an unchanged prefix can be reused). 03, 06
 - **Reasoning model:** model trained (often with RL) to produce long intermediate reasoning before answering. 01, 05
 - **Router (gating network):** small layer in an MoE block that scores experts for each token. 07
 - **Regression gate:** a CI check that fails when eval scores drop below a baseline. 09
