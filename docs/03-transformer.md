@@ -98,6 +98,34 @@ That is why the formula divides by $\sqrt{d_k}$, the square root of the **per-he
 
 How the sizes relate to the embedding size: $d_{\text{model}}$ is the length of the vector produced by the embedding lookup (handout 02), and every block takes and returns vectors of that same length. $d_k$ and $d_v$ are derived from it ($d_{\text{model}} / h$). $d_{\text{ff}}$ is usually about $4 \times d_{\text{model}}$: the MLP expands the vector to $d_{\text{ff}}$ and shrinks it back to $d_{\text{model}}$. After the first block these vectors are no longer "just the token's embedding", since attention and MLP layers have enriched them, so they are better called **hidden states**. The size stays $d_{\text{model}}$.
 
+**In plain words, the two sizes that matter most:**
+- $d_{\text{model}}$ is **how much the model can say about one token**. It is the width of the vector that represents each token as it flows through the network (the hidden state). Facts, grammar, position cues and context-dependent meaning all have to fit into these numbers. It also drives model size, because the parameters grow roughly with its square ($12 \cdot n_{\text{layers}} \cdot d_{\text{model}}^{2}$, see "Where the parameters are").
+- $d_k$ is the **"lens" of one head**. Each head projects a token's $d_{\text{model}}$ numbers into a smaller space of $d_k$ numbers, using $W_Q$ and $W_K$, and compares "what I am looking for" (query) with "what I offer" (key) in that space. Different heads learn different lenses, such as nearby words, syntax links or earlier mentions. $d_v$ is the matching width of what a head passes on once it has chosen.
+- Neither says anything about how many tokens there are. They are the width **per token**, while $n$ is the **number of tokens**. They are also weight dimensions, so they stay fixed whatever the context length.
+
+#### Real models compared
+The same quantities for real models, in order of appearance (as of 22 November 2026). "not published" means the lab has not released that number.
+
+| Model | $d_{\text{model}}$ | Heads | $d_k$ per head | Parameters | Date | Notes |
+|---|---|---|---|---|---|---|
+| Original Transformer (base) | 512 | 8 | 64 | 65M (big variant: 213M) | June 2017 | Encoder-decoder, 6+6 layers, $d_{\text{ff}} = 2048$ |
+| GPT-1 | 768 | 12 | 64 | about 117M | June 2018 | Decoder-only, 12 layers, 512-token context |
+| GPT-3 | 12288 | 96 | 128 | 175B | May to June 2020 | 96 layers, 2,048-token context, about 300B training tokens |
+| ChatGPT | not published | not published | not published | not disclosed | 30 Nov 2022 | GPT-3.5 series with chat tuning (RLHF). Free public interface. |
+| Llama 3 8B | 4096 | 32 (8 key/value heads) | 128 | about 8B | 18 Apr 2024 | 32 layers, grouped-query attention, open weights, 8K context at launch |
+| Claude Fable 5.2 (Anthropic) | not published | not published | not published | not disclosed | 9 Nov 2026 | 1M-token context, 128K max output |
+| Gemini 4 Carbon (Google) | not published | not published | not published | not disclosed | 10 Nov 2026 | Built on Gemini 4 Argon, which Google describes as a large-scale sparse MoE transformer with native multimodal input. 1M-token context. |
+| GPT-6.2 Astra (OpenAI) | not published | not published | not published | not disclosed | 17 Nov 2026 | OpenAI's frontier model, released together with GPT-6.2 Sol |
+
+What the table shows:
+- The published designs ($d_{\text{model}}$ from 512 to 12288) all have $d_k$ of 64 or 128. Bigger models get more heads, not wider ones.
+- Parameters grew by more than 2,000 times from the original Transformer to GPT-3, while the structure stayed the same.
+- For ChatGPT and the three 2026 models, the labs do not publish layer sizes, heads or parameter counts, so those cells are empty instead of estimated.
+
+The 2026 rows are the top models of each lab at the time of writing (the same labs also offer cheaper siblings, such as Claude Opus 5.5 and GPT-6.2 Sol), and they will age quickly. The Google date is the publication date of the model card, and the OpenAI date comes from press reports, since the announcement page shows no date in its text.
+
+Sources: [Attention Is All You Need](https://arxiv.org/abs/1706.03762), [GPT-1 paper](https://cdn.openai.com/research-covers/language-unsupervised/language_understanding_paper.pdf), [GPT-3 paper](https://arxiv.org/abs/2005.14165), [ChatGPT announcement](https://openai.com/index/chatgpt/), [Llama 3 model card](https://github.com/meta-llama/llama3/blob/main/MODEL_CARD.md), [Claude models overview](https://platform.claude.com/docs/en/models/overview) and [Fable 5.2 launch coverage](https://9to5mac.com/2026/11/09/anthropic-upgrades-claude-with-new-fable-5-2-model-details-here/), [Gemini 4 Carbon](https://deepmind.google/models/model-cards/gemini-4-carbon/) and [Gemini 4 Argon](https://deepmind.google/models/model-cards/gemini-4-argon/) model cards, [OpenAI's GPT-6.2 announcement](https://openai.com/index/introducing-gpt-6-2-astra-sol/) and [press coverage of its release](https://emergent.sh/news/openai-launches-gpt-6-2-sol-multimodal-ai).
+
 **Vectors or matrices?** Both views are the same thing. Each token has its own $q$, $k$ and $v$ **vector** (length $d_k$). In the formula and diagram, **$Q$, $K$, $V$ are matrices**: the vectors of all $n$ tokens stacked as rows, shape $n \times d_k$. Stacking lets one matrix multiplication compare every token with every other token at once. The learned weights $W_Q$, $W_K$, $W_V$ are also matrices ($d_{\text{model}} \times d_k$).
 
 Step by step:

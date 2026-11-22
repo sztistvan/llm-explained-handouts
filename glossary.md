@@ -55,9 +55,9 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 | Symbol | Meaning |
 |---|---|
 | $n$ | number of tokens in the sequence |
-| $d_{\text{model}}$ | length of the token vectors through the model (embedding size, hidden size) |
+| $d_{\text{model}}$ | length of the token vectors through the model (embedding size, hidden size): how much the model can say about one token |
 | $h$ | number of attention heads |
-| $d_k$, $d_v$ | length of key/query and value vectors per head, $d_{\text{model}} / h$ |
+| $d_k$, $d_v$ | length of key/query and value vectors per head, $d_{\text{model}} / h$: the "lens" of one head |
 | $d_{\text{ff}}$ | width of the MLP hidden layer, about $4 \times d_{\text{model}}$ |
 | $N$, $D$ | parameters, training tokens (compute $\approx 6ND$ FLOPs, handout 05) |
 | $W_Q$, $W_K$, $W_V$ | learned matrices that produce queries, keys, values |
@@ -179,6 +179,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 - **Multimodal:** accepting inputs beyond text (images, audio) by encoding them into vectors the LLM attends over. 07
 
 ## N
+- **Named-entity recognition (NER):** finding names of real-world things in text and labeling their type (person, organization, location, date, ...). Usually done as token classification, a good fit for encoder-only models such as BERT. 03
 - **Next-token prediction:** the core objective of decoder-only LLMs. 00, 05
 - **Nucleus sampling:** see *top-p*. 04
 
