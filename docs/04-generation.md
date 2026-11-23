@@ -26,7 +26,7 @@ $$
 \mathrm{softmax}(z)_i = \frac{e^{z_i}}{\sum_{j} e^{z_j}}
 $$
 
-where $z_i$ is the logit of token $i$. Because of the exponential, differences between logits are amplified: a gap of $1$ means the top token is about $e^{1} \approx 2.7$ times more likely, a gap of $3$ about $e^{3} \approx 20$ times.
+where $z_i$ is the logit of token $i$. (Softmax is often confused with tanh; see [Appendix A](appendix-a-tanh-vs-softmax.md).) Because of the exponential, differences between logits are amplified: a gap of $1$ means the top token is about $e^{1} \approx 2.7$ times more likely, a gap of $3$ about $e^{3} \approx 20$ times.
 
 Example with a toy 4-token vocabulary:
 

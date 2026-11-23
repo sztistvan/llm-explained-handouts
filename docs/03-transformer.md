@@ -339,8 +339,8 @@ They are not three copies of one thing:
 The encoder output $H$ has one row per source token. Lines 2 and 3 carry the same matrix; they become different keys and values only through the block's own weight matrices. With $S$ as the decoder states (one row per target token so far):
 
 $$
-Q = S\,W^Q, \qquad K = H\,W^K, \qquad V = H\,W^V, \qquad
-\text{CrossAttention} = \text{softmax}\!\left(\frac{Q K^\top}{\sqrt{d_k}}\right) V
+Q = S W^Q, \qquad K = H W^K, \qquad V = H W^V, \qquad
+\text{CrossAttention} = \text{softmax}\left(\frac{Q K^\top}{\sqrt{d_k}}\right) V
 $$
 
 - **Shape:** the score matrix is $m \times n$ (target tokens by source tokens). Each target position takes a weighted average of the encoded source tokens.

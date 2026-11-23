@@ -23,6 +23,7 @@ Short, accurate, intuition-first handouts on how Large Language Models work, wri
 | 08 | [Building with LLMs](docs/08-building-with-llms.md) | draft |
 | 09 | [Pitfalls and best practices](docs/09-pitfalls-and-practices.md) | draft |
 | 10 | [Further reading](docs/10-further-reading.md) | draft |
+| A | [Appendix A: tanh and softmax](docs/appendix-a-tanh-vs-softmax.md) | draft |
 
 ## Running the code examples
 Requires Python 3.10+ (developed on 3.13).

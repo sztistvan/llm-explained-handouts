@@ -60,7 +60,7 @@ h_t = \tanh\left(W_x x_t + W_h h_{t-1} + b\right), \qquad y_t = \mathrm{softmax}
 $$
 
 - $W_x$ turns the new word into a contribution to the note, and $W_h$ decides how much of the old note is carried over. Together with the bias $b$ they are learned weights, shared by all steps.
-- $\tanh$ squashes every value into the range $-1$ to $1$, which keeps the numbers from exploding.
+- $\tanh$ squashes every value into the range $-1$ to $1$, which keeps the numbers from exploding. (How it differs from softmax: [Appendix A](appendix-a-tanh-vs-softmax.md).)
 - $W_y$ with softmax turns the note into probabilities for the next token (handout 04). During training such a prediction is made at every step, not only at the end.
 - The first state $h_0$ is simply zeros.
 
@@ -78,6 +78,12 @@ $$
 | same logic every cycle | same weights at every step |
 | finite set of states | a real-valued vector, effectively unbounded |
 | logic designed by hand | logic learned from data |
+
+**Inside the matrices.** The weight matrices are the connections of a small neural network. Every hidden unit sums *all* the numbers of the input vector (weights $W_x$) and *all* the numbers of the previous hidden state (weights $W_h$), adds the bias and passes the sum through $\tanh$. So one RNN cell is a one-layer network whose input is $x_t$ and $h_{t-1}$ side by side. The figure shows a few units; the real vectors have hundreds of numbers.
+
+![The RNN cell with its weight matrices drawn as neural-network connections, tanh in blue and softmax in purple](../figures/rnn_cell_network_01.png)
+
+The two nonlinearities work differently. $\tanh$ acts on each unit on its own (one blue box per unit). Softmax acts on all scores together (one purple block), which is why its outputs add up to 1 ([Appendix A](appendix-a-tanh-vs-softmax.md)).
 
 **Moore or Mealy?** The two classic forms of sequential circuit differ in what the output logic sees. In a **Moore** machine the output depends on the state only. In a **Mealy** machine it depends on the state and on the current input.
 
