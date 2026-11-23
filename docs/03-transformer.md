@@ -320,6 +320,36 @@ flowchart LR
 | Generates text? | Not naturally | Yes | Yes |
 | Typical use today | Embeddings and rerankers, classifiers | Chat assistants, coding, agents | Translation, speech (Whisper), some seq2seq tasks |
 
+### Cross-attention: the three lines into the decoder
+
+In the original encoder-decoder architecture, three arrows enter the decoder's second attention block (the middle orange block on the right): two from the encoder, one from the decoder's own masked attention.
+
+![The Transformer architecture, Figure 1 of Vaswani et al., "Attention Is All You Need" (2017)](../figures/transformer_01a.png)
+
+*Figure: Vaswani et al., [Attention Is All You Need](https://arxiv.org/abs/1706.03762), Figure 1. Reproduced with attribution.*
+
+They are not three copies of one thing:
+
+| Line | Comes from | Role | Meaning |
+|---|---|---|---|
+| 1 | Decoder: masked attention output, after Add & Norm | $Q$ (query) | "What the target word being generated needs to know from the source" |
+| 2 | Encoder: output of the final layer | $K$ (key) | "What each source token offers to be found by" |
+| 3 | Encoder: the same output | $V$ (value) | "The content each source token contributes if it is chosen" |
+
+The encoder output $H$ has one row per source token. Lines 2 and 3 carry the same matrix; they become different keys and values only through the block's own weight matrices. With $S$ as the decoder states (one row per target token so far):
+
+$$
+Q = S\,W^Q, \qquad K = H\,W^K, \qquad V = H\,W^V, \qquad
+\text{CrossAttention} = \text{softmax}\!\left(\frac{Q K^\top}{\sqrt{d_k}}\right) V
+$$
+
+- **Shape:** the score matrix is $m \times n$ (target tokens by source tokens). Each target position takes a weighted average of the encoded source tokens.
+- **Difference from self-attention:** there, $Q$, $K$ and $V$ come from one sequence. Here the query comes from the target side, keys and values from the source side.
+- **No causal mask:** the whole source is known. Only padding is masked.
+- **Reuse:** the encoder runs once; its output feeds the cross-attention of every decoder layer (6 in the paper).
+- **Decoder-only models** (GPT, Llama) have no encoder, so they drop this block.
+- **Origin:** this is the seq2seq attention of [handout 01](01-history.md) (decoder state as query, encoder states as keys and values) with learned projections and several heads.
+
 ### Why decoder-only dominates today
 - **One simple objective:** next-token prediction on raw text needs no labels.
 - **Scales well and is versatile:** everything becomes "continue this text", so one model handles many tasks via prompting.

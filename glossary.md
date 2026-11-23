@@ -101,7 +101,7 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 - **Context window:** the maximum number of tokens the model can read at once; its only working memory. 00, 03
 - **Contamination:** benchmark questions leaking into training data, inflating scores. 05
 - **Cosine similarity:** how closely two vectors point in the same direction (−1 to 1). 02
-- **Cross-attention:** attention where queries come from the decoder and keys/values from the encoder. 03
+- **Cross-attention:** attention where the query comes from the decoder state and the keys and values from the encoder output (the same matrix, projected by different weights). 03
 - **Cross-entropy:** the loss $-\log p(\text{correct token})$, averaged over positions. 05
 
 ## D
