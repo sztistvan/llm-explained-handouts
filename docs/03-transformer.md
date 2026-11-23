@@ -18,10 +18,21 @@ flowchart TB
     B2 --> DOTS["... (N blocks, e.g. 32 to 100+)"]
     DOTS --> BN["Transformer block N"]
     BN --> NORM["Final norm"]
-    NORM --> OUT["Output projection (unembedding)<br/>vector to one score per vocab token"]
-    OUT --> LOG["Logits"]
+    NORM --> OUT["Output projection (unembedding)<br/>= the Linear box of the paper<br/>vector to one score per vocab token"]
+    OUT --> LOG["Logits<br/>(raw scores, one per vocab token)"]
+    LOG -.-> SM["Softmax<br/>(handout 04)"]
+    SM -.-> PROB["Probabilities<br/>(positive, sum to 1)"]
+    PROB -.-> PICK["Pick the next token<br/>(handout 04)"]
 ```
 Every block takes an $n \times d_{\text{model}}$ matrix (one row per token) and returns one of the **same shape**. That is why blocks can be stacked as deep as you like.
+
+**The output layer (the "Linear" box in the paper's diagram).** The last step is a single matrix multiplication, called the output projection or unembedding. It converts the final vector of each position into one score for every token in the vocabulary:
+
+$$
+\text{logits} = h W_{\text{vocab}} + b, \qquad W_{\text{vocab}} \in \mathbb{R}^{d_{\text{model}} \times |\text{vocab}|}
+$$
+
+Without this layer the model would have no way to turn a 512-number vector into "which of the 37,000 tokens comes next". In the paper's English-German model the matrix has about $512 \times 37000 \approx 19$ million weights. The raw scores (**logits**) go into softmax, which turns them into probabilities (handout 04). The paper shares this matrix with the input embedding table (**weight tying**): the embedding maps a token to a vector, the output projection maps a vector back to token scores, so one matrix can serve both directions. Many later models still do this.
 
 > **Try it:** [LLM Visualization](https://bbycroft.net/llm) is an interactive 3D walkthrough of a GPT model, from embedding through attention and the MLP to softmax. It shows the same structure as the diagrams here, first on a tiny model and then at GPT-2 and GPT-3 scale. Its terms differ slightly: it says "feed forward" and "projection" where this handout says MLP and output projection, and it uses LayerNorm (as GPT-2 does) where many newer models use RMSNorm.
 
@@ -138,7 +149,7 @@ flowchart LR
     SC --> M["causal mask<br/>(decoders only)"]
     M --> SM["softmax per row<br/>(weights sum to 1)"]
     SM --> O["weights · V<br/>= output"]
-    V["V (n × d_k)"] --> O
+    V["V (n × d_v)"] --> O
 ```
 
 1. **Scores, $QK^{\top}$:** the dot product of every query with every key gives an $n \times n$ table of match scores.
@@ -256,7 +267,7 @@ The same mechanism again, this time following the matrices through a short gener
 | Decode, step 2 | 3 | $q_3$ | $z_3$ | $k_1, k_2, k_3$ and $v_1, v_2, v_3$ |
 | Decode, step 3 | 4 | $q_4$ | $z_4$ | $k_1 \dots k_4$ and $v_1 \dots v_4$ |
 
-The **last** row of $Z$ (after the final layer, followed by the output projection and softmax of handout 04) gives the probabilities for the next token. The rows $q_2$ and $z_2$ are not recomputed at step 2: their job was done during prefill, and their effect lives on in the cached K and V of the layers above.
+The **last** row of $Z$ (after the final layer, followed by the output projection, which gives the logits, and the softmax of handout 04) gives the probabilities for the next token. The rows $q_2$ and $z_2$ are not recomputed at step 2: their job was done during prefill, and their effect lives on in the cached K and V of the layers above.
 
 **Three ways to generate.** What each step recomputes, for a sequence of $n$ tokens:
 

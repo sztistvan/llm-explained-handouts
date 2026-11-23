@@ -245,13 +245,14 @@ Entries marked *(planned)* will be covered in a later handout. This file is upda
 - **Transformer:** architecture built from attention and MLP blocks (2017). 01, 03
 
 ## U–Z
-- **Unembedding (output projection):** final matrix turning a vector into one logit per vocabulary token. 03
+- **Unembedding (output projection):** final matrix turning a vector into one logit per vocabulary token; the "Linear" box before softmax in the original paper's diagram. 03
 - **Unrolling:** drawing a recurrent network as one copy of the cell per time step, to follow how information flows (the copies share the same weights). 01
 - **Value (V):** the information a token contributes when attended to. 03
 - **Vanishing gradient:** the training signal (and the influence of old inputs) shrinking step by step in a recurrent network, so long-range links are hard to learn. 01
 - **Vector database / index:** store that finds the nearest embeddings to a query vector. 08
 - **Vision encoder / projector:** the encoder that turns image patches into vectors / the small network mapping them to the LLM's $d_{\text{model}}$. 07
 - **Vocabulary:** the set of all tokens a model knows (about 30k to 250k+). 02
+- **Weight tying:** using one matrix both as the input embedding table and as the output projection. 03
 - **word2vec:** 2013 method that learns word embeddings in a separate training step (skip-gram with negative sampling); LLMs instead learn embeddings jointly with the network. 01, 02
 - **Workflow:** a fixed sequence of steps in your code, some of which call an LLM; contrast with an *agent*. 08
 - **Retry with exponential backoff:** retrying failed calls after growing delays (plus jitter). 09
