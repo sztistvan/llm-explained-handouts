@@ -64,6 +64,28 @@ $$
 - $W_y$ with softmax turns the note into probabilities for the next token (handout 04). During training such a prediction is made at every step, not only at the end.
 - The first state $h_0$ is simply zeros.
 
+**The same cell as a sequential circuit.** Digital designers know this structure: a state register, combinational logic that computes the next state, and logic that produces the output. The RNN cell has exactly this shape, and the diagram above shows the same cell in flowchart form.
+
+![The RNN cell drawn as a sequential circuit (Moore form)](../figures/rnn_cell_circuit_01.png)
+
+| Digital design | RNN |
+|---|---|
+| clock cycle | one token step |
+| state register | hidden state $h_t$ (the note) |
+| reset state | $h_0$ = zeros |
+| next-state logic | $\tanh(W_x x_t + W_h h_{t-1} + b)$ |
+| output logic | $\mathrm{softmax}(W_y h_t)$ |
+| same logic every cycle | same weights at every step |
+| finite set of states | a real-valued vector, effectively unbounded |
+| logic designed by hand | logic learned from data |
+
+**Moore or Mealy?** The two classic forms of sequential circuit differ in what the output logic sees. In a **Moore** machine the output depends on the state only. In a **Mealy** machine it depends on the state and on the current input.
+
+- **As written, the RNN is Moore-like:** $y_t$ is computed from $h_t$ only. The input reaches the output only through the state.
+- **It looks Mealy-like in one reading:** if $h_{t-1}$ is regarded as "the state", then $y_t$ depends on that state and on the current input $x_t$ within the same step.
+- **The two forms are equivalent:** any Mealy machine can be converted into a Moore machine and back, so neither reading is wrong.
+- **Unrolling in time**, described next, is this circuit copied once per clock cycle.
+
 **Unrolling in time.** To follow the information, copy the cell once per token. These are not three networks: it is the same cell with the same weights, used three times. Notice that `sat` reaches the prediction only through $h_3$, and `the` only through $h_1 \to h_2 \to h_3$.
 
 ```mermaid
@@ -76,6 +98,10 @@ flowchart LR
     x3["sat"] --> C3
     C3 -- "h3" --> P["predict next token<br/>(e.g. on)"]
 ```
+
+The same picture in the usual textbook form, folded (left) and unrolled in time (right):
+
+![An RNN, folded and unrolled in time](../figures/recurrent_network_02.png)
 
 The hidden state is a **lossy summary**: it is overwritten at every step, and the cell has no direct access to earlier tokens.
 
